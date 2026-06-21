@@ -7,16 +7,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DeliveryDriver extends BaseEntity {
-    private String firstName;
-    private String lastName;
-    private String email;
-    private String phone;
-    private String passwordHash;
+public class DeliveryDriver extends Person {
     private String driverCode;
     private String vehicleType;
     private String vehiclePlate;
