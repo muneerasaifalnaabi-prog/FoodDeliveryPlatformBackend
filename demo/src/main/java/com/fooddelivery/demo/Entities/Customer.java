@@ -3,9 +3,15 @@ package com.fooddelivery.demo.Entities;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.OneToMany;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Customer extends BaseEntity {
     private String firstName;
     private String lastName;
