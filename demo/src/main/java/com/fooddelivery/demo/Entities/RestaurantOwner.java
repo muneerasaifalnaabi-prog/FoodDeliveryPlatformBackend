@@ -13,11 +13,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RestaurantOwner extends Person {
-    private String firstName;
-    private String lastName;
-    private String email;
-    private String phone;
-    private String passwordHash;
     private String businessLicenseCode;
     @OneToMany()
     private List<Restaurant> restaurants;
