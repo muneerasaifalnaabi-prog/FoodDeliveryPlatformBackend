@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Customer extends BaseEntity {
+public class Customer extends Person {
     private String firstName;
     private String lastName;
     @Column(unique = true)
