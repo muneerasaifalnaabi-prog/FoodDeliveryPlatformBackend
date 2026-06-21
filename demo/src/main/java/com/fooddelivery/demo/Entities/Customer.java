@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -23,5 +24,9 @@ public class Customer extends BaseEntity {
     private String customerCode;
     @OneToMany()
     private List<CustomerAddress> addresses;
+    @OneToMany()
+    private List<Order> orders ;
+    @OneToMany()
+    private List<Review> reviews ;
 
 }
