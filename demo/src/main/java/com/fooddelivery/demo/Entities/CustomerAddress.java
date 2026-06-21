@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class CustomerAddress {
+public class CustomerAddress extends BaseEntity {
     private String street;
     private String city;
     private String building;
