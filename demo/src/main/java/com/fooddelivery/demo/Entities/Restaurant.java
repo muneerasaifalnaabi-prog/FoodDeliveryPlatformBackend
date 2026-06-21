@@ -1,4 +1,6 @@
 package com.fooddelivery.demo.Entities;
 
-public class Restaurant {
+public class Restaurant extends BaseEntity{
+
+
 }
