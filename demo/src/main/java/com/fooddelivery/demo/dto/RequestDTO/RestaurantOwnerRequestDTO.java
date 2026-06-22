@@ -32,15 +32,15 @@ public class RestaurantOwnerRequestDTO {
     @NotBlank(message = "Business license code is required")
     private String businessLicenseCode;
 
-    public RestaurantOwner convertToDTO() {
+    public RestaurantOwnerRequestDTO convertToDTO(RestaurantOwner entity) {
 
-        RestaurantOwner owner = new RestaurantOwner();
+        RestaurantOwnerRequestDTO owner = new RestaurantOwnerRequestDTO();
 
         owner.setFirstName(firstName);
         owner.setLastName(lastName);
         owner.setEmail(email);
         owner.setPhone(phone);
-        owner.setPasswordHash(password);
+        owner.setPassword(password);
         owner.setBusinessLicenseCode(businessLicenseCode);
 
         return owner;

@@ -30,17 +30,14 @@ public class CustomerRequestDTO {
     @NotBlank(message = "Password is required")
     private String password;
 
-    public Customer convertToDTO() {
+    public CustomerRequestDTO convertToDTO(Customer entity) {
 
-        Customer customer = new Customer();
+        CustomerRequestDTO customer = new CustomerRequestDTO();
 
         customer.setFirstName(firstName);
         customer.setLastName(lastName);
         customer.setEmail(email);
         customer.setPhone(phone);
-        customer.setPasswordHash(password);
-        customer.setLoyaltyPoints(0);
-
         return customer;
     }
 

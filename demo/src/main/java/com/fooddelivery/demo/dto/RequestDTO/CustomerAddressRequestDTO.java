@@ -19,9 +19,9 @@ public class CustomerAddressRequestDTO {
 
     private Boolean isDefault;
 
-    public CustomerAddress convertToDTO() {
+    public CustomerAddressRequestDTO convertToDTO(CustomerAddress entity) {
 
-        CustomerAddress address = new CustomerAddress();
+        CustomerAddressRequestDTO address = new CustomerAddressRequestDTO();
 
         address.setStreet(street);
         address.setCity(city);
