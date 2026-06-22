@@ -1,5 +1,6 @@
 package com.fooddelivery.demo.dto;
 
+import com.fooddelivery.demo.Entities.RestaurantOwner;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -30,4 +31,18 @@ public class RestaurantOwnerRequestDTO {
 
     @NotBlank(message = "Business license code is required")
     private String businessLicenseCode;
+
+    public RestaurantOwner convertToDTO() {
+
+        RestaurantOwner owner = new RestaurantOwner();
+
+        owner.setFirstName(firstName);
+        owner.setLastName(lastName);
+        owner.setEmail(email);
+        owner.setPhone(phone);
+        owner.setPasswordHash(password);
+        owner.setBusinessLicenseCode(businessLicenseCode);
+
+        return owner;
+    }
 }
