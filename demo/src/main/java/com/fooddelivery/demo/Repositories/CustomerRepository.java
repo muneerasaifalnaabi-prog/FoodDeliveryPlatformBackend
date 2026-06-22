@@ -1,4 +1,7 @@
 package com.fooddelivery.demo.Repositories;
 
-public interface CustomerRepository {
+import com.fooddelivery.demo.Entities.Customer;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface CustomerRepository extends JpaRepository<Customer, Integer> {
 }
