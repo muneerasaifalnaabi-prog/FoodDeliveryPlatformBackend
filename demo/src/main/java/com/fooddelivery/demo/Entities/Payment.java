@@ -20,6 +20,6 @@ public class Payment extends BaseEntity {
     private String transactionRef;
     private LocalDateTime processedAt;
     @OneToOne
-    private Order order;
+    private Orders orders;
 
 }

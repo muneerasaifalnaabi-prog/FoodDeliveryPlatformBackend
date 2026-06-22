@@ -18,7 +18,7 @@ public class OrderItem extends BaseEntity{
     private BigDecimal totalPrice;
     private String specialInstructions;
     @ManyToOne
-    private Order order;
+    private Orders orders;
     @ManyToOne
     private MenuItem menuItem;
 }

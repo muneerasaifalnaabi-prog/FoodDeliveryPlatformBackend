@@ -19,7 +19,7 @@ public class Customer extends Person {
     @OneToMany()
     private List<CustomerAddress> addresses;
     @OneToMany()
-    private List<Order> orders;
+    private List<Orders> orders;
     @OneToMany()
     private List<Review> reviews;
 

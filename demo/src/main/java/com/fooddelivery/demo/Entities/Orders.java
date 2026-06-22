@@ -16,7 +16,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Order extends BaseEntity {
+public class Orders extends BaseEntity {
     private String orderCode;
     private LocalDateTime orderDate;
     private String status;

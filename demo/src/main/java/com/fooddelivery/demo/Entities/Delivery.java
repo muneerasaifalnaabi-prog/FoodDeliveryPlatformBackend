@@ -20,7 +20,7 @@ public class Delivery extends BaseEntity {
     private LocalDateTime pickedUpAt;
     private LocalDateTime deliveredAt;
     @OneToOne
-    private Order order;
+    private Orders orders;
     @ManyToOne
     private DeliveryDriver deliveryDriver;
 }
