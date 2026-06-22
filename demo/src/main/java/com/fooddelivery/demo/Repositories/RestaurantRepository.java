@@ -1,7 +1,25 @@
 package com.fooddelivery.demo.Repositories;
 
-import com.fooddelivery.demo.Entities.CustomerAddress;
+import com.fooddelivery.demo.Entities.Restaurant;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
-public interface RestaurantRepository extends JpaRepository<CustomerAddress, Integer> {
+import java.util.List;
+
+public interface RestaurantRepository extends JpaRepository<Restaurant, Integer> {
+    @Query("SELECT r FROM Restaurant r WHERE LOWER(r.cuisineType) = LOWER(:cuisineType)AND r.isActive = true ")
+    List<Restaurant> findByCuisineTypeIgnoreCase(@Param("cuisineType") String cuisineType);
+
+    @Query("SELECT r FROM Restaurant r WHERE r.acceptingOrders = acceptingOrders AND r.isActive = true")
+    List<Restaurant> findByAcceptingOrdersTrue();
+
+    @Query("SELECT r FROM Restaurant r WHERE r.deliveryFee <= :deliveryFee AND r.isActive = true")
+    List<Restaurant> findByDeliveryFeeLessThanEqual(@Param("fee") double fee);
+
+    @Query("SELECT r FROM Restaurant r WHERE r.restaurantOwner.id = :ownerId AND r.isActive = true")
+    List<Restaurant> findRestaurantsByOwnerId(@Param("ownerId") Integer ownerId);
+
+    @Query(" SELECT r FROM Restaurant r  WHERE LOWER(r.name)  LIKE LOWER(CONCAT('%', :keyword, '%')) AND r.isActive = true")
+    List<Restaurant> searchRestaurantsByKeyword(@Param("keyword") String keyword);
 }
