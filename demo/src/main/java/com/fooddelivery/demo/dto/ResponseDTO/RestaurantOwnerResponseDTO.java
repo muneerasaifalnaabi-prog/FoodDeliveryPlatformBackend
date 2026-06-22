@@ -1,4 +1,4 @@
-package com.fooddelivery.demo.dto;
+package com.fooddelivery.demo.dto.ResponseDTO;
 
 import com.fooddelivery.demo.Entities.RestaurantOwner;
 import lombok.Data;

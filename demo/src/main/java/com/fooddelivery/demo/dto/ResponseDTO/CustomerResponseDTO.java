@@ -1,7 +1,6 @@
-package com.fooddelivery.demo.dto;
+package com.fooddelivery.demo.dto.ResponseDTO;
 
 import com.fooddelivery.demo.Entities.Customer;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

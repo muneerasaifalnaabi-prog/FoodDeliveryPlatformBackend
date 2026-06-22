@@ -1,4 +1,4 @@
-package com.fooddelivery.demo.dto;
+package com.fooddelivery.demo.dto.RequestDTO;
 
 import com.fooddelivery.demo.Entities.Customer;
 import jakarta.validation.constraints.Email;
