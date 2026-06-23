@@ -45,7 +45,6 @@ public class DeliveryDriverRequestDTO {
     public DeliveryDriver toEntity() {
 
         DeliveryDriver driver = new DeliveryDriver();
-
         applyTo(driver);
 
         return driver;
@@ -55,20 +54,14 @@ public class DeliveryDriverRequestDTO {
 
         driver.setFirstName(firstName);
         driver.setLastName(lastName);
-
         driver.setEmail(email);
         driver.setPhone(phone);
-
         driver.setPasswordHash(password);
-
         driver.setVehicleType(vehicleType);
         driver.setVehiclePlate(vehiclePlate);
-
         driver.setCurrentLat(currentLat);
         driver.setCurrentLng(currentLng);
 
-        driver.setIsOnline(
-                isOnline != null ? isOnline : false
-        );
+        driver.setIsOnline(isOnline != null ? isOnline : false);
     }
 }
