@@ -41,15 +41,15 @@ public class RestaurantOwnerRequestDTO {
         return owner;
     }
 
-    public void applyTo(RestaurantOwner entity) {
+    public void applyTo(RestaurantOwner owner) {
 
-        entity.setFirstName(firstName);
-        entity.setLastName(lastName);
-        entity.setEmail(email);
-        entity.setPhone(phone);
+        owner.setFirstName(firstName);
+        owner.setLastName(lastName);
+        owner.setEmail(email);
+        owner.setPhone(phone);
 
-        entity.setPasswordHash(password);
+        owner.setPasswordHash(password);
 
-        entity.setBusinessLicenseCode(businessLicenseCode);
+        owner.setBusinessLicenseCode(businessLicenseCode);
     }
 }

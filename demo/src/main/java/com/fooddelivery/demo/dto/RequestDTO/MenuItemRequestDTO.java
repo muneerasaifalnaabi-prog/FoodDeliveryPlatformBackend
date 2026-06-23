@@ -2,38 +2,52 @@ package com.fooddelivery.demo.dto.RequestDTO;
 
 import com.fooddelivery.demo.Entities.MenuItem;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor
 public class MenuItemRequestDTO {
-    @NotBlank(message = "Item name is required")
+
+    @NotBlank(message = "Menu item name is required")
     private String name;
 
+    @NotBlank(message = "Description is required")
     private String description;
 
     @NotNull(message = "Price is required")
-    @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than zero")
-    private Double price;
+    @DecimalMin(value = "0.0", message = "Price must be greater than or equal to 0")
+    private BigDecimal price;
 
-    @NotNull(message = "Vegetarian flag must be specified")
+    private Boolean isAvailable;
+
     private Boolean isVegetarian;
 
-    @PositiveOrZero(message = "Calories cannot be negative")
+    @NotNull(message = "Calories are required")
+    @Min(value = 0, message = "Calories cannot be negative")
     private Integer calories;
 
-    public MenuItemRequestDTO convertToDTO(MenuItem entity) {
-        MenuItemRequestDTO item = new MenuItemRequestDTO();
-        item.setName(entity.getName());
-        item.setDescription(entity.getDescription());
-        item.setPrice(entity);
-        item.setIsVegetarian(this.isVegetarian);
-        item.setCalories(this.calories);
-        item.setIsAvailable(true);
-        return item;
+    public MenuItem toEntity() {
 
+        MenuItem menuItem = new MenuItem();
+        applyTo(menuItem);
+
+        return menuItem;
+    }
+
+    public void applyTo(MenuItem menuItem) {
+
+        menuItem.setName(name);
+        menuItem.setDescription(description);
+        menuItem.setPrice(price);
+        menuItem.setCalories(calories);
+        menuItem.setIsAvailable(isAvailable != null ? isAvailable : true);
+
+        menuItem.setIsVegetarian(isVegetarian != null ? isVegetarian : false);
+    }
 }
