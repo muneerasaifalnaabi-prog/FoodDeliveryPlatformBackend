@@ -33,9 +33,7 @@ public class RestaurantOwnerRequestDTO {
     private String businessLicenseCode;
 
     public RestaurantOwner toEntity() {
-
         RestaurantOwner owner = new RestaurantOwner();
-
         applyTo(owner);
 
         return owner;

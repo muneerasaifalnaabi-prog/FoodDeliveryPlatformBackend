@@ -51,7 +51,6 @@ public class ComboMealResponseDTO {
         List<ComboMealResponseDTO> dtos = new ArrayList<>();
 
         for (ComboMeal entity : entities) {
-
             dtos.add(fromEntity(entity));
 
         }

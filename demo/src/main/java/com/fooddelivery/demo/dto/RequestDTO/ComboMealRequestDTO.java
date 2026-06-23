@@ -17,7 +17,6 @@ public class ComboMealRequestDTO {
     @NotBlank(message = "Combo meal name is required")
     private String comboName;
 
-    @NotBlank(message = "Description is required")
     private String description;
 
     @NotNull(message = "Total price is required")
@@ -30,7 +29,6 @@ public class ComboMealRequestDTO {
     private List<Integer> menuItems;
 
     public ComboMeal toEntity() {
-
         ComboMeal comboMeal = new ComboMeal();
         applyTo(comboMeal);
 

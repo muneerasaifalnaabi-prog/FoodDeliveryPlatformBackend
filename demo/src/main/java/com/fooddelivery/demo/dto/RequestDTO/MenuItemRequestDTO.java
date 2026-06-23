@@ -33,10 +33,8 @@ public class MenuItemRequestDTO {
     private Integer calories;
 
     public MenuItem toEntity() {
-
         MenuItem menuItem = new MenuItem();
         applyTo(menuItem);
-
         return menuItem;
     }
 

@@ -20,7 +20,6 @@ public class CustomerAddressRequestDTO {
     private Boolean isDefault;
 
     public CustomerAddress toEntity() {
-
         CustomerAddress address = new CustomerAddress();
         applyTo(address);
 
@@ -32,7 +31,6 @@ public class CustomerAddressRequestDTO {
         address.setStreet(street);
         address.setCity(city);
         address.setBuilding(building);
-
         address.setIsDefault(isDefault != null ? isDefault : false);
 
     }

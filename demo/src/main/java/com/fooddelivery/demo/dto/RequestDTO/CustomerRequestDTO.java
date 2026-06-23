@@ -31,7 +31,6 @@ public class CustomerRequestDTO {
     private String password;
 
     public Customer toEntity() {
-
         Customer customer = new Customer();
         applyTo(customer);
         return customer;
