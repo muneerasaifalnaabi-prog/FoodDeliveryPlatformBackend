@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 
 import java.util.Date;
+import java.util.Map;
 
 @Data
 @AllArgsConstructor
@@ -25,4 +26,6 @@ public class ErrorResponse {
         this.message = message;
         this.path = path;
     }
-}
+
+    }
+
