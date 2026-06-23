@@ -42,23 +42,33 @@ public class DeliveryDriverRequestDTO {
 
     private Boolean isOnline;
 
-    public DeliveryDriverRequestDTO convertToDTO(DeliveryDriver entity) {
+    public DeliveryDriver toEntity() {
 
-        DeliveryDriverRequestDTO driver = new DeliveryDriverRequestDTO();
+        DeliveryDriver driver = new DeliveryDriver();
+
+        applyTo(driver);
+
+        return driver;
+    }
+
+    public void applyTo(DeliveryDriver driver) {
 
         driver.setFirstName(firstName);
         driver.setLastName(lastName);
+
         driver.setEmail(email);
         driver.setPhone(phone);
-        driver.setPassword(password);
+
+        driver.setPasswordHash(password);
+
         driver.setVehicleType(vehicleType);
         driver.setVehiclePlate(vehiclePlate);
+
         driver.setCurrentLat(currentLat);
         driver.setCurrentLng(currentLng);
 
-        driver.setIsOnline(isOnline != null ? isOnline : false);
-
-        return driver;
-
+        driver.setIsOnline(
+                isOnline != null ? isOnline : false
+        );
     }
 }
