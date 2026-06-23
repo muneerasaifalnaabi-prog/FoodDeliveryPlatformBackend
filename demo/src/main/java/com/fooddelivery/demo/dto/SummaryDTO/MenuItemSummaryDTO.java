@@ -28,16 +28,4 @@ public class MenuItemSummaryDTO {
         return dto;
     }
 
-    public static List<MenuItemSummaryDTO> fromEntityList(List<MenuItem> entities) {
-
-        List<MenuItemSummaryDTO> dtos = new ArrayList<>();
-
-        for (MenuItem entity : entities) {
-
-            dtos.add(fromEntity(entity));
-
-        }
-
-        return dtos;
-    }
 }
