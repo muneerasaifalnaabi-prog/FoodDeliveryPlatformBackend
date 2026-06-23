@@ -22,7 +22,6 @@ public class CustomerAddressRequestDTO {
     public CustomerAddress toEntity() {
 
         CustomerAddress address = new CustomerAddress();
-
         applyTo(address);
 
         return address;
