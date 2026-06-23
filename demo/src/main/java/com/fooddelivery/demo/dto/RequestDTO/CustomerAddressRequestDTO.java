@@ -34,9 +34,7 @@ public class CustomerAddressRequestDTO {
         address.setCity(city);
         address.setBuilding(building);
 
-        address.setIsDefault(
-                isDefault != null ? isDefault : false
-        );
+        address.setIsDefault(isDefault != null ? isDefault : false);
 
     }
 }
