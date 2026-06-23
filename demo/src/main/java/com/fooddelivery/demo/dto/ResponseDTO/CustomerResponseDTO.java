@@ -15,7 +15,7 @@ public class CustomerResponseDTO {
     private Integer loyaltyPoints;
     private String customerCode;
 
-    public static CustomerResponseDTO convertToDTO(Customer entity) {
+    public static CustomerResponseDTO fromEntity(Customer entity) {
 
         CustomerResponseDTO dto = new CustomerResponseDTO();
 

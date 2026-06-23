@@ -22,7 +22,7 @@ public class DeliveryDriverResponseDTO {
     private Double currentLng;
     private Boolean isOnline;
 
-    public static DeliveryDriverResponseDTO convertToDTO(DeliveryDriver entity) {
+    public static DeliveryDriverResponseDTO fromEntity(DeliveryDriver entity) {
 
         DeliveryDriverResponseDTO dto = new DeliveryDriverResponseDTO();
 
@@ -41,12 +41,12 @@ public class DeliveryDriverResponseDTO {
         return dto;
     }
 
-    public static List<DeliveryDriverResponseDTO> convertToDTO(List<DeliveryDriver> entities) {
+    public static List<DeliveryDriverResponseDTO> fromEntity(List<DeliveryDriver> entities) {
 
         List<DeliveryDriverResponseDTO> dtos = new ArrayList<>();
 
         for (DeliveryDriver entity : entities) {
-            dtos.add(convertToDTO(entity));
+            dtos.add(fromEntity(entity));
         }
 
         return dtos;

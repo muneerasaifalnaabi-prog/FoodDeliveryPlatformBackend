@@ -47,7 +47,7 @@ public class RestaurantResponseDTO {
         return dto;
     }
 
-    public static List<RestaurantResponseDTO> fromEntityList(List<Restaurant> entities) {
+    public static List<RestaurantResponseDTO> fromEntity(List<Restaurant> entities) {
 
         List<RestaurantResponseDTO> dtos = new ArrayList<>();
 

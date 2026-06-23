@@ -18,7 +18,7 @@ public class RestaurantOwnerResponseDTO {
     private String businessLicenseCode;
 
 
-    public static RestaurantOwnerResponseDTO convertToDTO(RestaurantOwner entity) {
+    public static RestaurantOwnerResponseDTO fromEntity(RestaurantOwner entity) {
 
         RestaurantOwnerResponseDTO dto = new RestaurantOwnerResponseDTO();
 
@@ -32,12 +32,12 @@ public class RestaurantOwnerResponseDTO {
         return dto;
     }
 
-    public static List<RestaurantOwnerResponseDTO> convertToDTO(List<RestaurantOwner> entities) {
+    public static List<RestaurantOwnerResponseDTO> fromEntity(List<RestaurantOwner> entities) {
 
         List<RestaurantOwnerResponseDTO> dtos = new ArrayList<>();
 
         for (RestaurantOwner entity : entities) {
-            dtos.add(convertToDTO(entity));
+            dtos.add(fromEntity(entity));
         }
 
         return dtos;

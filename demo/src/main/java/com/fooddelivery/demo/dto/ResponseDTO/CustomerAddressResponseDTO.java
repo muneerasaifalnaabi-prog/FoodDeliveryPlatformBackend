@@ -16,7 +16,7 @@ public class CustomerAddressResponseDTO {
     private String building;
     private Boolean isDefault;
 
-    public static CustomerAddressResponseDTO convertToDTO(CustomerAddress entity) {
+    public static CustomerAddressResponseDTO fromEntity(CustomerAddress entity) {
 
         CustomerAddressResponseDTO dto = new CustomerAddressResponseDTO();
 
@@ -29,12 +29,12 @@ public class CustomerAddressResponseDTO {
         return dto;
     }
 
-    public static List<CustomerAddressResponseDTO> convertToDTO(List<CustomerAddress> entities) {
+    public static List<CustomerAddressResponseDTO> fromEntity(List<CustomerAddress> entities) {
 
         List<CustomerAddressResponseDTO> dtos = new ArrayList<>();
 
         for (CustomerAddress entity : entities) {
-            dtos.add(convertToDTO(entity));
+            dtos.add(fromEntity(entity));
         }
 
         return dtos;
