@@ -38,9 +38,9 @@ public class RestaurantRequestDTO {
 
     private Boolean acceptingOrders;
 
-    public RestaurantRequestDTO convertToDTO(Restaurant entity) {
+    public Restaurant toEntity() {
 
-        RestaurantRequestDTO restaurant = new RestaurantRequestDTO();
+        Restaurant restaurant = new Restaurant();
 
         restaurant.setName(name);
         restaurant.setDescription(description);
@@ -51,7 +51,7 @@ public class RestaurantRequestDTO {
         restaurant.setDeliveryFee(deliveryFee);
 
         restaurant.setAcceptingOrders(acceptingOrders != null ? acceptingOrders : true);
-
         return restaurant;
     }
+
 }

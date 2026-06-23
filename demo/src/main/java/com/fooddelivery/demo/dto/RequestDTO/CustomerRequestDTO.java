@@ -4,14 +4,14 @@ import com.fooddelivery.demo.Entities.Customer;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import lombok.AllArgsConstructor;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class CustomerRequestDTO {
+
     @NotBlank(message = "First name is required")
     private String firstName;
 
@@ -19,26 +19,31 @@ public class CustomerRequestDTO {
     private String lastName;
 
     @NotBlank(message = "Email is required")
-    @Email(message = "Please enter a valid email address")
+    @Email(message = "Invalid email format")
     private String email;
 
     @NotBlank(message = "Phone number is required")
-    @Pattern(regexp = "^\\+?[0-9]{8,15}$",
-            message = "Phone number must contain only numbers and be between 8 and 15 digits")
+    @Pattern(regexp = "^\\+?[0-9]{8,15}$", message = "Phone number must be between 8 and 15 digits")
     private String phone;
 
     @NotBlank(message = "Password is required")
+    @Size(min = 6, message = "Password must contain at least 6 characters")
     private String password;
 
-    public CustomerRequestDTO convertToDTO(Customer entity) {
+    public Customer toEntity() {
 
-        CustomerRequestDTO customer = new CustomerRequestDTO();
+        Customer customer = new Customer();
+        applyTo(customer);
+        return customer;
+    }
+
+    public void applyTo(Customer customer) {
 
         customer.setFirstName(firstName);
         customer.setLastName(lastName);
         customer.setEmail(email);
         customer.setPhone(phone);
-        return customer;
+        customer.setPasswordHash(password);
+        customer.setLoyaltyPoints(0);
     }
-
 }
