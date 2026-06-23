@@ -19,16 +19,24 @@ public class CustomerAddressRequestDTO {
 
     private Boolean isDefault;
 
-    public CustomerAddressRequestDTO convertToDTO(CustomerAddress entity) {
+    public CustomerAddress toEntity() {
 
-        CustomerAddressRequestDTO address = new CustomerAddressRequestDTO();
+        CustomerAddress address = new CustomerAddress();
 
-        address.setStreet(street);
-        address.setCity(city);
-        address.setBuilding(building);
-        address.setIsDefault(isDefault != null ? isDefault : false);
+        applyTo(address);
 
         return address;
     }
 
+    public void applyTo(CustomerAddress address) {
+
+        address.setStreet(street);
+        address.setCity(city);
+        address.setBuilding(building);
+
+        address.setIsDefault(
+                isDefault != null ? isDefault : false
+        );
+
+    }
 }
