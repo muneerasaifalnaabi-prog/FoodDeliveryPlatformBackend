@@ -41,6 +41,12 @@ public class RestaurantRequestDTO {
     public Restaurant toEntity() {
 
         Restaurant restaurant = new Restaurant();
+        applyTo(restaurant);
+
+        return restaurant;
+    }
+
+    public void applyTo(Restaurant restaurant) {
 
         restaurant.setName(name);
         restaurant.setDescription(description);
@@ -49,9 +55,8 @@ public class RestaurantRequestDTO {
         restaurant.setClosingTime(closingTime);
         restaurant.setMinOrderAmount(minOrderAmount);
         restaurant.setDeliveryFee(deliveryFee);
-
         restaurant.setAcceptingOrders(acceptingOrders != null ? acceptingOrders : true);
-        return restaurant;
     }
+
 
 }
