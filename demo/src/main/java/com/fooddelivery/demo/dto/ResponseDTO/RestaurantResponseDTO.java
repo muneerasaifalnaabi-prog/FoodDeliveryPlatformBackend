@@ -25,7 +25,7 @@ public class RestaurantResponseDTO {
     private Integer ownerId;
     private String ownerName;
 
-    public static RestaurantResponseDTO convertToDTO(Restaurant entity) {
+    public static RestaurantResponseDTO fromEntity(Restaurant entity) {
 
         RestaurantResponseDTO dto = new RestaurantResponseDTO();
 
@@ -41,20 +41,18 @@ public class RestaurantResponseDTO {
 
         if (entity.getRestaurantOwner() != null) {
             dto.setOwnerId(entity.getRestaurantOwner().getId());
-
-            dto.setOwnerName(entity.getRestaurantOwner().getFirstName() + " " + entity.getRestaurantOwner().getLastName()
-            );
+            dto.setOwnerName(entity.getRestaurantOwner().getFirstName() + " " + entity.getRestaurantOwner().getLastName());
         }
 
         return dto;
     }
 
-    public static List<RestaurantResponseDTO> convertToDTO(List<Restaurant> entities) {
+    public static List<RestaurantResponseDTO> fromEntityList(List<Restaurant> entities) {
 
         List<RestaurantResponseDTO> dtos = new ArrayList<>();
 
         for (Restaurant entity : entities) {
-            dtos.add(convertToDTO(entity));
+            dtos.add(fromEntity(entity));
         }
 
         return dtos;
