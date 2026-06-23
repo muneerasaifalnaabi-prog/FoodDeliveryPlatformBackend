@@ -32,17 +32,24 @@ public class RestaurantOwnerRequestDTO {
     @NotBlank(message = "Business license code is required")
     private String businessLicenseCode;
 
-    public RestaurantOwnerRequestDTO convertToDTO(RestaurantOwner entity) {
+    public RestaurantOwner toEntity() {
 
-        RestaurantOwnerRequestDTO owner = new RestaurantOwnerRequestDTO();
+        RestaurantOwner owner = new RestaurantOwner();
 
-        owner.setFirstName(firstName);
-        owner.setLastName(lastName);
-        owner.setEmail(email);
-        owner.setPhone(phone);
-        owner.setPassword(password);
-        owner.setBusinessLicenseCode(businessLicenseCode);
+        applyTo(owner);
 
         return owner;
+    }
+
+    public void applyTo(RestaurantOwner entity) {
+
+        entity.setFirstName(firstName);
+        entity.setLastName(lastName);
+        entity.setEmail(email);
+        entity.setPhone(phone);
+
+        entity.setPasswordHash(password);
+
+        entity.setBusinessLicenseCode(businessLicenseCode);
     }
 }
