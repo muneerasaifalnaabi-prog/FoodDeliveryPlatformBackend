@@ -15,7 +15,6 @@ public class InvalidOrderStateException extends RuntimeException {
         this.status = status;
     }
     public static InvalidOrderStateException conflict(String message) {
-
         return new InvalidOrderStateException(HttpStatus.CONFLICT, message);
     }
     public HttpStatus getStatus() {
