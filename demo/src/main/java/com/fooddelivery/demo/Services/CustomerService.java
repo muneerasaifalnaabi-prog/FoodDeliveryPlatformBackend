@@ -5,15 +5,18 @@ import com.fooddelivery.demo.Entities.Customer;
 import com.fooddelivery.demo.Entities.CustomerAddress;
 import com.fooddelivery.demo.Exceptions.DuplicateResourceException;
 import com.fooddelivery.demo.Exceptions.InvalidOrderStateException;
+import com.fooddelivery.demo.Exceptions.ResourceNotFoundException;
 import com.fooddelivery.demo.Repositories.CustomerAddressRepository;
 import com.fooddelivery.demo.Repositories.CustomerRepository;
 import com.fooddelivery.demo.Utils.HelperUtils;
 import com.fooddelivery.demo.dto.RequestDTO.CustomerAddressRequestDTO;
 import com.fooddelivery.demo.dto.RequestDTO.CustomerRequestDTO;
+import com.fooddelivery.demo.dto.ResponseDTO.CustomerAddressResponseDTO;
 import com.fooddelivery.demo.dto.ResponseDTO.CustomerResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.xml.crypto.Data;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -74,5 +77,37 @@ public class CustomerService {
 
         return CustomerResponseDTO.fromEntity(savedCustomer);
     }
+
+    public CustomerAddressResponseDTO addAddress( Integer customerId, CustomerAddressRequestDTO addressDTO ) {
+
+        Customer customer =customerRepository.findCustomerById(customerId).orElseThrow(()-> ResourceNotFoundException.notFound("Customer",customerId));
+
+        CustomerAddress address = addressDTO.toEntity();
+
+        address.setCustomer(customer);
+        address.setCreatedDate(LocalDateTime.now());
+        address.setUpdatedDate(LocalDateTime.now());
+        address.setIsActive(true);
+
+        CustomerAddress savedAddress = customerAddressRepository.save(address);
+        return CustomerAddressResponseDTO.fromEntity( savedAddress );
+
+    }
+
+    public CustomerResponseDTO updateLoyaltyPoints(Integer customerId, int points){
+        Customer customer =customerRepository.findCustomerById(customerId).orElseThrow(()-> ResourceNotFoundException.notFound("Customer",customerId));
+
+        customer.setLoyaltyPoints(customer.getLoyaltyPoints()+points);
+        customer.setUpdatedDate(LocalDateTime.now());
+
+        Customer updatedCustomer = customerRepository.save(customer);
+        return CustomerResponseDTO.fromEntity(updatedCustomer);
+
+    }
+
+
+
+
+
 
 }
