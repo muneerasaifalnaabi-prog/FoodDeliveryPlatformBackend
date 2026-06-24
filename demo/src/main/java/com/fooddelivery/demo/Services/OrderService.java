@@ -111,6 +111,7 @@ public class OrderService {
     public OrdersResponseDTO addMenuItemToOrder(Integer orderId, Integer menuItemId, int quantity) {
         Orders order = ordersRepository.findOrderById(orderId).orElseThrow(() -> ResourceNotFoundException.notFound("Order", orderId));
         MenuItem menuItem = menuItemRepository.findMenuItemById(menuItemId).orElseThrow(() -> ResourceNotFoundException.notFound("Menu Item", menuItemId));
+
         if (!(order.getStatus()).equals("PENDING")) {
             throw InvalidOrderStateException.invalidState("Cannot add items to an order that is not PENDING. Current status: " + order.getStatus());
         }
@@ -131,18 +132,37 @@ public class OrderService {
         order.setUpdatedDate(LocalDateTime.now());
         return OrdersResponseDTO.fromEntity(ordersRepository.save(order));
     }
-    public OrdersResponseDTO removeMenuItemFromOrder( Integer orderId, Integer orderItemId ) {
-        Orders order = ordersRepository.findOrderById(orderId) .orElseThrow(() -> ResourceNotFoundException.notFound( "Order", orderId ) );
-        OrderItem item = orderItemRepository.findOrderItemById(orderItemId).orElseThrow();
+    public OrdersResponseDTO removeMenuItemFromOrder(Integer orderId, Integer orderItemId) {
+
+        Orders order = ordersRepository.findOrderById(orderId).orElseThrow(() -> ResourceNotFoundException.notFound("Order", orderId));
+
+        //only PENDING orders can have items removed
+        if (!(order.getStatus()).equals("PENDING")) {
+            throw InvalidOrderStateException.invalidState("Cannot remove items from an order that is not PENDING. Current status: " + order.getStatus());
+        }
+        OrderItem item = orderItemRepository.findOrderItemById(orderItemId).orElseThrow(() -> ResourceNotFoundException.notFound("OrderItem", orderItemId));
+
+        // verify this item actually belongs to the order the caller specified —
+        if (item.getOrders() == null || !item.getOrders().getId().equals(orderId)) {
+            throw ResourceNotFoundException.notFound("OrderItem", orderItemId);
+        }
+
+        //  an already-removed item can't be removed again — prevents
+        if (!(item.getIsActive()).equals(Boolean.TRUE)) {
+            throw ResourceNotFoundException.notFound("OrderItem", orderItemId);
+        }
+
         item.setIsActive(false);
         item.setUpdatedDate(LocalDateTime.now());
         orderItemRepository.save(item);
-        BigDecimal updatedTotal = order.getTotalAmount().subtract( item.getTotalPrice() );
+
+        BigDecimal updatedTotal = order.getTotalAmount().subtract(item.getTotalPrice());
         order.setTotalAmount(updatedTotal);
         order.setUpdatedDate(LocalDateTime.now());
-        Orders updatedOrder = ordersRepository.save(order);
-        return OrdersResponseDTO.fromEntity(updatedOrder);
+
+        return OrdersResponseDTO.fromEntity(ordersRepository.save(order));
     }
+
 
 
 }
