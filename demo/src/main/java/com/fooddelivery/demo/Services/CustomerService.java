@@ -89,8 +89,7 @@ public class CustomerService {
         address.setUpdatedDate(LocalDateTime.now());
         address.setIsActive(true);
 
-        CustomerAddress savedAddress = customerAddressRepository.save(address);
-        return CustomerAddressResponseDTO.fromEntity( savedAddress );
+        return CustomerAddressResponseDTO.fromEntity(customerAddressRepository.save(address));
 
     }
 
@@ -100,10 +99,38 @@ public class CustomerService {
         customer.setLoyaltyPoints(customer.getLoyaltyPoints()+points);
         customer.setUpdatedDate(LocalDateTime.now());
 
-        Customer updatedCustomer = customerRepository.save(customer);
-        return CustomerResponseDTO.fromEntity(updatedCustomer);
+        return CustomerResponseDTO.fromEntity(customerRepository.save(customer));
 
     }
+    public CustomerResponseDTO applyLoyaltyPenalty(Integer customerId, int pointsDeducted){
+        Customer customer =customerRepository.findCustomerById(customerId).orElseThrow(()-> ResourceNotFoundException.notFound("Customer",customerId));
+
+        int updatPoint = customer.getLoyaltyPoints() -pointsDeducted;
+        if (updatPoint<0){
+            updatPoint=0;
+        }
+        customer.setLoyaltyPoints(updatPoint);
+        customer.setUpdatedDate(LocalDateTime.now());
+         return CustomerResponseDTO.fromEntity(customerRepository.save(customer));
+    }
+
+    public String  deactivateCustomer(Integer customerId){
+        Customer customer =customerRepository.findCustomerById(customerId).orElseThrow(()-> ResourceNotFoundException.notFound("Customer",customerId));
+        if (customer.getIsActive()==null || customer.getIsActive()) {
+            customer.setIsActive(false);
+            customer.setUpdatedDate(LocalDateTime.now());
+            customerRepository.save(customer);
+
+            return "DELETED";
+        }
+        else {
+            return "NOT FOUND";
+        }
+
+
+    }
+
+
 
 
 
