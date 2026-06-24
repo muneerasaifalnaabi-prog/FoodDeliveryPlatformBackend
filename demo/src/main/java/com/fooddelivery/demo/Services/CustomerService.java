@@ -1,6 +1,7 @@
 package com.fooddelivery.demo.Services;
 
 
+
 import com.fooddelivery.demo.Entities.Customer;
 import com.fooddelivery.demo.Entities.CustomerAddress;
 import com.fooddelivery.demo.Exceptions.DuplicateResourceException;
@@ -16,7 +17,7 @@ import com.fooddelivery.demo.dto.ResponseDTO.CustomerResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.xml.crypto.Data;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Optional;

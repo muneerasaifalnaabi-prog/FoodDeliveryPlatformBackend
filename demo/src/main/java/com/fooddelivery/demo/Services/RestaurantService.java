@@ -44,17 +44,18 @@ public class RestaurantService {
         return RestaurantResponseDTO.fromEntity(restaurantRepository.save(restaurant));
     }
 
-    public RestaurantResponseDTO  toggleAcceptingOrders(Integer restaurantId, boolean status){
+    public RestaurantResponseDTO toggleAcceptingOrders(Integer restaurantId, boolean status) {
 
-                Restaurant restaurant =restaurantRepository.findRestaurantById(restaurantId).orElseThrow(() -> ResourceNotFoundException.notFound( "Restaurant", restaurantId ));
+        Restaurant restaurant = restaurantRepository.findRestaurantById(restaurantId).orElseThrow(() -> ResourceNotFoundException.notFound("Restaurant", restaurantId));
 
-                restaurant.setAcceptingOrders(status);
-                restaurant.setUpdatedDate(LocalDateTime.now());
+        restaurant.setAcceptingOrders(status);
+        restaurant.setUpdatedDate(LocalDateTime.now());
 
-                return RestaurantResponseDTO.fromEntity(restaurantRepository.save(restaurant));
+        return RestaurantResponseDTO.fromEntity(restaurantRepository.save(restaurant));
     }
-    public RestaurantResponseDTO updateDeliveryFee( Integer restaurantId, double newFee ){
-        Restaurant restaurant =restaurantRepository.findRestaurantById(restaurantId).orElseThrow(() -> ResourceNotFoundException.notFound( "Restaurant", restaurantId ));
+
+    public RestaurantResponseDTO updateDeliveryFee(Integer restaurantId, double newFee) {
+        Restaurant restaurant = restaurantRepository.findRestaurantById(restaurantId).orElseThrow(() -> ResourceNotFoundException.notFound("Restaurant", restaurantId));
 
         restaurant.setDeliveryFee(BigDecimal.valueOf(newFee));
         restaurant.setUpdatedDate(LocalDateTime.now());
@@ -62,28 +63,42 @@ public class RestaurantService {
         return RestaurantResponseDTO.fromEntity(restaurantRepository.save(restaurant));
 
     }
-    public List<RestaurantResponseDTO> getRestaurantsByCuisine(String cuisine ) {
-        List<Restaurant> restaurants =restaurantRepository.findByCuisineTypeIgnoreCase(cuisine);
+
+    public List<RestaurantResponseDTO> getRestaurantsByCuisine(String cuisine) {
+        List<Restaurant> restaurants = restaurantRepository.findByCuisineTypeIgnoreCase(cuisine);
 
         return RestaurantResponseDTO.fromEntity(restaurants);
     }
-    public List<RestaurantResponseDTO>  getRestaurantsUnderDeliveryFee(double maxFee){
+
+    public List<RestaurantResponseDTO> getRestaurantsUnderDeliveryFee(double maxFee) {
         List<Restaurant> restaurants = restaurantRepository.findByDeliveryFeeLessThanEqual(maxFee);
 
         return RestaurantResponseDTO.fromEntity(restaurants);
     }
-   public List<MenuItemResponseDTO> getMenuForRestaurant(Integer restaurantId){
-       Restaurant restaurant =restaurantRepository.findRestaurantById(restaurantId).orElseThrow(() -> ResourceNotFoundException.notFound( "Restaurant", restaurantId ));
-       List<MenuItem> menuItems = menuItemRepository.findByRestaurantIdAndIsAvailableTrue( restaurant.getId() );
-       return MenuItemResponseDTO.fromEntity(menuItems);
-    }
-    public List<MenuItemResponseDTO> bulkUpdateMenuItemPrices( Integer restaurantId, double percentageIncrease){
 
-
+    public List<MenuItemResponseDTO> getMenuForRestaurant(Integer restaurantId) {
+        Restaurant restaurant = restaurantRepository.findRestaurantById(restaurantId).orElseThrow(() -> ResourceNotFoundException.notFound("Restaurant", restaurantId));
+        List<MenuItem> menuItems = menuItemRepository.findByRestaurantIdAndIsAvailableTrue(restaurant.getId());
+        return MenuItemResponseDTO.fromEntity(menuItems);
     }
 
+    public List<MenuItemResponseDTO> bulkUpdateMenuItemPrices(Integer restaurantId, double percentageIncrease) {
+        Restaurant restaurant = restaurantRepository.findRestaurantById(restaurantId).orElseThrow(() -> ResourceNotFoundException.notFound("Restaurant", restaurantId));
+        List<MenuItem> menuItems = menuItemRepository.findByRestaurantIdAndIsAvailableTrue(restaurant.getId());
+        for (MenuItem item : menuItems) {
+            BigDecimal currentPrice = item.getPrice();
+            BigDecimal increaseAmount = currentPrice.multiply(BigDecimal.valueOf(percentageIncrease / 100));
+            BigDecimal updatedPrice = currentPrice.add(increaseAmount);
+            item.setPrice(updatedPrice);
+            item.setUpdatedDate(LocalDateTime.now());
+            menuItemRepository.save(item);
+        }
+        return MenuItemResponseDTO.fromEntity(menuItems);
 
-   }
+    }
+
+
+}
 
 
 
