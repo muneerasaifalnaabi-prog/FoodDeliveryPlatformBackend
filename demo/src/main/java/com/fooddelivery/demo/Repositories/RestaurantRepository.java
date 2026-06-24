@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface RestaurantRepository extends JpaRepository<Restaurant, Integer> {
     @Query("SELECT r FROM Restaurant r WHERE LOWER(r.cuisineType) = LOWER(:cuisineType)AND r.isActive = true ")
@@ -22,4 +23,7 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, Integer>
 
     @Query(" SELECT r FROM Restaurant r  WHERE LOWER(r.name)  LIKE LOWER(CONCAT('%', :keyword, '%')) AND r.isActive = true")
     List<Restaurant> searchRestaurantsByKeyword(@Param("keyword") String keyword);
+
+    @Query("SELECT r FROM Restaurant r WHERE r.isActive = TRUE AND r.id = :restaurantId")
+    Optional<Restaurant> findRestaurantById(@Param("restaurantId") Integer restaurantId);
 }
