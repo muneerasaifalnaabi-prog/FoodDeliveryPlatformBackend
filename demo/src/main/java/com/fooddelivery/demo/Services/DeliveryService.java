@@ -75,8 +75,9 @@ public class DeliveryService {
 
         return DeliveryDriverResponseDTO.fromEntity(deliveryDriverRepository.save(driver));
     }
-    public DeliveryResponseDTO markDeliveryPickedUp(Integer deliveryId){
-        Delivery delivery =deliveryRepository.findById(deliveryId).orElseThrow(() -> ResourceNotFoundException.notFound("Delivery", deliveryId));
+
+    public DeliveryResponseDTO markDeliveryPickedUp(Integer deliveryId) {
+        Delivery delivery = deliveryRepository.findById(deliveryId).orElseThrow(() -> ResourceNotFoundException.notFound("Delivery", deliveryId));
 
         if (!delivery.getStatus().equals("PICKED_UP")) {
             throw InvalidOrderStateException.invalidState("cannot pick up delivery");
@@ -86,13 +87,14 @@ public class DeliveryService {
         delivery.setUpdatedDate(LocalDateTime.now());
         deliveryRepository.save(delivery);
 
-        Orders orders =delivery.getOrders();
+        Orders orders = delivery.getOrders();
         orders.setStatus("ON_THE_WAY");
         ordersRepository.save(orders);
         return DeliveryResponseDTO.fromEntity(deliveryRepository.save(delivery));
     }
+
     public DeliveryResponseDTO markDeliveryDelivered(Integer deliveryId) {
-        Delivery delivery =deliveryRepository.findById(deliveryId).orElseThrow(() -> ResourceNotFoundException.notFound("Delivery", deliveryId));
+        Delivery delivery = deliveryRepository.findById(deliveryId).orElseThrow(() -> ResourceNotFoundException.notFound("Delivery", deliveryId));
         if (!delivery.getStatus().equals("DELIVERED")) {
             throw InvalidOrderStateException.invalidState("cannot deliver delivery");
         }
@@ -100,21 +102,23 @@ public class DeliveryService {
         delivery.setAssignedAt(LocalDateTime.now());
         delivery.setUpdatedDate(LocalDateTime.now());
         deliveryRepository.save(delivery);
-        Orders orders =delivery.getOrders();
+        Orders orders = delivery.getOrders();
         orders.setStatus("DELIVERED");
         ordersRepository.save(orders);
         ordersRepository.save(orders);
         return DeliveryResponseDTO.fromEntity(deliveryRepository.save(delivery));
     }
-    public List<DeliveryResponseDTO> getDeliveriesForDriver(Integer driverId, String status ) {
-        DeliveryDriver driver =deliveryDriverRepository.findDriverById(driverId).orElseThrow(() -> ResourceNotFoundException.notFound("Driver", driverId));
 
-        List<Delivery> deliveries =deliveryRepository.findByDeliveryDriverIdAndStatus(driverId,status);
+    public List<DeliveryResponseDTO> getDeliveriesForDriver(Integer driverId, String status) {
+        DeliveryDriver driver = deliveryDriverRepository.findDriverById(driverId).orElseThrow(() -> ResourceNotFoundException.notFound("Driver", driverId));
+
+        List<Delivery> deliveries = deliveryRepository.findByDeliveryDriverIdAndStatus(driverId, status);
         return DeliveryResponseDTO.fromEntity(deliveries);
 
     }
-    public String toggleDriverOnlineStatus( Integer driverId, boolean isOnline ) {
-        DeliveryDriver driver =deliveryDriverRepository.findDriverById(driverId).orElseThrow(() -> ResourceNotFoundException.notFound("Driver", driverId));
+
+    public String toggleDriverOnlineStatus(Integer driverId, boolean isOnline) {
+        DeliveryDriver driver = deliveryDriverRepository.findDriverById(driverId).orElseThrow(() -> ResourceNotFoundException.notFound("Driver", driverId));
         driver.setIsOnline(isOnline);
         driver.setUpdatedDate(LocalDateTime.now());
         deliveryDriverRepository.save(driver);
@@ -124,7 +128,6 @@ public class DeliveryService {
         return "Driver is now OFFLINE";
 
     }
-
 
 
 }
