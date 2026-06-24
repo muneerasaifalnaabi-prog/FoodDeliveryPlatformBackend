@@ -1,12 +1,15 @@
 package com.fooddelivery.demo.Services;
 
+import com.fooddelivery.demo.Entities.MenuItem;
 import com.fooddelivery.demo.Entities.Restaurant;
 import com.fooddelivery.demo.Entities.RestaurantOwner;
 import com.fooddelivery.demo.Exceptions.InvalidOrderStateException;
 import com.fooddelivery.demo.Exceptions.ResourceNotFoundException;
+import com.fooddelivery.demo.Repositories.MenuItemRepository;
 import com.fooddelivery.demo.Repositories.RestaurantOwnerRepository;
 import com.fooddelivery.demo.Repositories.RestaurantRepository;
 import com.fooddelivery.demo.dto.RequestDTO.RestaurantRequestDTO;
+import com.fooddelivery.demo.dto.ResponseDTO.MenuItemResponseDTO;
 import com.fooddelivery.demo.dto.ResponseDTO.RestaurantResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +24,8 @@ public class RestaurantService {
     private RestaurantRepository restaurantRepository;
     @Autowired
     private RestaurantOwnerRepository restaurantOwnerRepository;
+    @Autowired
+    private MenuItemRepository menuItemRepository;
 
     public RestaurantResponseDTO createRestaurant(RestaurantRequestDTO dto, Integer ownerId) {
 
@@ -67,7 +72,15 @@ public class RestaurantService {
 
         return RestaurantResponseDTO.fromEntity(restaurants);
     }
-   public RestaurantResponseDTO getMenuForRestaurant(Integer restaurantId){
+   public List<MenuItemResponseDTO> getMenuForRestaurant(Integer restaurantId){
+       Restaurant restaurant =restaurantRepository.findRestaurantById(restaurantId).orElseThrow(() -> ResourceNotFoundException.notFound( "Restaurant", restaurantId ));
+       List<MenuItem> menuItems = menuItemRepository.findByRestaurantIdAndIsAvailableTrue( restaurant.getId() );
+       return MenuItemResponseDTO.fromEntity(menuItems);
+    }
+    public List<MenuItemResponseDTO> bulkUpdateMenuItemPrices( Integer restaurantId, double percentageIncrease){
+
+    }
+
 
    }
 
@@ -76,4 +89,4 @@ public class RestaurantService {
 
 
 
-}
+

@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -30,5 +32,14 @@ public class MenuItemResponseDTO {
         dto.setCalories(menuItem.getCalories());
         dto.setRestaurant( RestaurantSummaryDTO.fromEntity( menuItem.getRestaurant() ) );
         return dto;
+    }
+    public static List<MenuItemResponseDTO> fromEntity(List<MenuItem> menuItems) {
+        List<MenuItemResponseDTO> dtos = new ArrayList<>();
+        if (menuItems != null) {
+            for (MenuItem menuItem : menuItems) {
+                dtos.add(fromEntity(menuItem));
+            }
+        }
+        return dtos;
     }
 }
