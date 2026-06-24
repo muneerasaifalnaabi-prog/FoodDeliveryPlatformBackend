@@ -74,6 +74,23 @@ public class DeliveryService {
 
         return DeliveryDriverResponseDTO.fromEntity(deliveryDriverRepository.save(driver));
     }
+    public DeliveryResponseDTO markDeliveryPickedUp(Integer deliveryId){
+        Delivery delivery =deliveryRepository.findById(deliveryId).orElseThrow(() -> ResourceNotFoundException.notFound("Delivery", deliveryId));
+
+        if (!delivery.getStatus().equals("PICKED_UP")) {
+            throw InvalidOrderStateException.invalidState("cannot pick up delivery");
+        }
+        delivery.setStatus("PICKED_UP");
+        delivery.setAssignedAt(LocalDateTime.now());
+        delivery.setUpdatedDate(LocalDateTime.now());
+        deliveryRepository.save(delivery);
+
+        Orders orders =delivery.getOrders();
+        orders.setStatus("ON_DELIVERY");
+        ordersRepository.save(orders);
+        return DeliveryResponseDTO.fromEntity(deliveryRepository.save(delivery));
+    }
+
 
 }
 
