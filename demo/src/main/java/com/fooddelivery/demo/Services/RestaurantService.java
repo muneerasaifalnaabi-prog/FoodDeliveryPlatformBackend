@@ -11,6 +11,7 @@ import com.fooddelivery.demo.dto.ResponseDTO.RestaurantResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Service
@@ -45,7 +46,13 @@ public class RestaurantService {
 
                 return RestaurantResponseDTO.fromEntity(restaurantRepository.save(restaurant));
     }
-    public RestaurantResponseDTO pdateDeliveryFee( Integer restaurantId, double newFee ){
+    public RestaurantResponseDTO updateDeliveryFee( Integer restaurantId, double newFee ){
+        Restaurant restaurant =restaurantRepository.findRestaurantById(restaurantId).orElseThrow(() -> ResourceNotFoundException.notFound( "Restaurant", restaurantId ));
+
+        restaurant.setDeliveryFee(BigDecimal.valueOf(newFee));
+        restaurant.setUpdatedDate(LocalDateTime.now());
+
+        return RestaurantResponseDTO.fromEntity(restaurantRepository.save(restaurant));
 
     }
 
