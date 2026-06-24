@@ -1,6 +1,7 @@
 package com.fooddelivery.demo.Entities;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,4 +22,9 @@ public class OrderItem extends BaseEntity{
     private Orders orders;
     @ManyToOne
     private MenuItem menuItem;
+
+    //add it when i add corporateorderMethod in ordersService
+    @ManyToOne
+    @JoinColumn(name = "corporate_order_id")
+    private CorporateOrder corporateOrder;
 }
