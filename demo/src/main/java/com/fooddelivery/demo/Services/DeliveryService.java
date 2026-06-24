@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class DeliveryService {
@@ -86,10 +87,33 @@ public class DeliveryService {
         deliveryRepository.save(delivery);
 
         Orders orders =delivery.getOrders();
-        orders.setStatus("ON_DELIVERY");
+        orders.setStatus("ON_THE_WAY");
         ordersRepository.save(orders);
         return DeliveryResponseDTO.fromEntity(deliveryRepository.save(delivery));
     }
+    public DeliveryResponseDTO markDeliveryDelivered(Integer deliveryId) {
+        Delivery delivery =deliveryRepository.findById(deliveryId).orElseThrow(() -> ResourceNotFoundException.notFound("Delivery", deliveryId));
+        if (!delivery.getStatus().equals("DELIVERED")) {
+            throw InvalidOrderStateException.invalidState("cannot deliver delivery");
+        }
+        delivery.setStatus("DELIVERED");
+        delivery.setAssignedAt(LocalDateTime.now());
+        delivery.setUpdatedDate(LocalDateTime.now());
+        deliveryRepository.save(delivery);
+        Orders orders =delivery.getOrders();
+        orders.setStatus("DELIVERED");
+        ordersRepository.save(orders);
+        ordersRepository.save(orders);
+        return DeliveryResponseDTO.fromEntity(deliveryRepository.save(delivery));
+    }
+    public List<DeliveryResponseDTO> getDeliveriesForDriver(Integer driverId, String status ) {
+        DeliveryDriver driver =deliveryDriverRepository.findDriverById(driverId).orElseThrow(() -> ResourceNotFoundException.notFound("Driver", driverId));
+
+        List<Delivery> deliveries =deliveryRepository.findByDeliveryDriverIdAndStatus(driverId,status);
+        return DeliveryResponseDTO.fromEntity(deliveries);
+
+    }
+
 
 
 }
