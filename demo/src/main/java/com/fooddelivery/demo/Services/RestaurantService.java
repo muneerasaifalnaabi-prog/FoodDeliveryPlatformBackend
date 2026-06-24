@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class RestaurantService {
@@ -55,6 +56,13 @@ public class RestaurantService {
         return RestaurantResponseDTO.fromEntity(restaurantRepository.save(restaurant));
 
     }
+    public List<RestaurantResponseDTO> getRestaurantsByCuisine(String cuisine ) {
+        List<Restaurant> restaurants =restaurantRepository.findByCuisineTypeIgnoreCase(cuisine);
+
+        return RestaurantResponseDTO.fromEntity(restaurants);
+    }
+
+
 
 
 }
