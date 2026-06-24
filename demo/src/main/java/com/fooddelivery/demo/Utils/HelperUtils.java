@@ -1,5 +1,6 @@
 package com.fooddelivery.demo.Utils;
 
+import java.math.BigDecimal;
 import java.time.LocalTime;
 
 public class HelperUtils {
@@ -49,5 +50,11 @@ public class HelperUtils {
 
         return now.isAfter(open) && now.isBefore(close);
     }
+
+    public static BigDecimal calculateItemTotal(BigDecimal price, int quantity) {
+        return price.multiply(BigDecimal.valueOf(quantity));
+    }
+
+
 
 }

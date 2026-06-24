@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface OrdersRepository extends JpaRepository<Orders, Integer> {
     @Query("SELECT o FROM Orders o WHERE o.customer.id = :customerId AND o.isActive = true")
@@ -24,5 +25,9 @@ public interface OrdersRepository extends JpaRepository<Orders, Integer> {
 
     @Query("SELECT COALESCE(SUM(o.totalAmount), 0) FROM Orders o  WHERE DATE(o.orderDate) = :date AND o.status = 'DELIVERED' AND o.isActive = true")
     Double sumDeliveredRevenueByDate(@Param("date") LocalDate date);
+
+
+    @Query("SELECT o FROM Orders o WHERE o.id = :orderId AND o.isActive = true")
+    Optional<Orders> findOrderById(@Param("orderId") Integer orderId);
 
 }
