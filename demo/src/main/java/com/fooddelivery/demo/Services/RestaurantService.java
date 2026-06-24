@@ -19,14 +19,14 @@ public class RestaurantService {
     private RestaurantRepository restaurantRepository;
     @Autowired private RestaurantOwnerRepository restaurantOwnerRepository;
 
-    public RestaurantResponseDTO createRestaurant(RestaurantRequestDTO dto, Integer ownerId){
+    public RestaurantResponseDTO createRestaurant(RestaurantRequestDTO dto, Integer ownerId) {
 
         if (dto == null) {
             throw InvalidOrderStateException.invalidState("Restaurant data is required");
-    }
-        RestaurantOwner owner=restaurantOwnerRepository.findActiveById(ownerId).orElseThrow(()-> ResourceNotFoundException.notFound("Restaurant",ownerId));
+        }
+        RestaurantOwner owner = restaurantOwnerRepository.findActiveById(ownerId).orElseThrow(() -> ResourceNotFoundException.notFound("Restaurant", ownerId));
 
-        Restaurant restaurant =dto.toEntity();
+        Restaurant restaurant = dto.toEntity();
         restaurant.setRestaurantOwner(owner);
         restaurant.setAcceptingOrders(true);
         restaurant.setCreatedDate(LocalDateTime.now());
@@ -34,7 +34,20 @@ public class RestaurantService {
         restaurant.setIsActive(true);
 
         return RestaurantResponseDTO.fromEntity(restaurantRepository.save(restaurant));
+    }
 
+    public RestaurantResponseDTO  toggleAcceptingOrders(Integer restaurantId, boolean status){
+
+                Restaurant restaurant =restaurantRepository.findRestaurantById(restaurantId).orElseThrow(() -> ResourceNotFoundException.notFound( "Restaurant", restaurantId ));
+
+                restaurant.setAcceptingOrders(status);
+                restaurant.setUpdatedDate(LocalDateTime.now());
+
+                return RestaurantResponseDTO.fromEntity(restaurantRepository.save(restaurant));
+    }
+    public RestaurantResponseDTO pdateDeliveryFee( Integer restaurantId, double newFee ){
+
+    }
 
 
 }
