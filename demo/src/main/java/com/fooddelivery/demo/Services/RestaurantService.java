@@ -79,6 +79,7 @@ public class RestaurantService {
     }
     public List<MenuItemResponseDTO> bulkUpdateMenuItemPrices( Integer restaurantId, double percentageIncrease){
 
+
     }
 
 
