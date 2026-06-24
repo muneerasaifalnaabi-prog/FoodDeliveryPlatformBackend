@@ -113,6 +113,17 @@ public class DeliveryService {
         return DeliveryResponseDTO.fromEntity(deliveries);
 
     }
+    public String toggleDriverOnlineStatus( Integer driverId, boolean isOnline ) {
+        DeliveryDriver driver =deliveryDriverRepository.findDriverById(driverId).orElseThrow(() -> ResourceNotFoundException.notFound("Driver", driverId));
+        driver.setIsOnline(isOnline);
+        driver.setUpdatedDate(LocalDateTime.now());
+        deliveryDriverRepository.save(driver);
+        if (isOnline) {
+            return "Driver is now ONLINE";
+        }
+        return "Driver is now OFFLINE";
+
+    }
 
 
 
