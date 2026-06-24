@@ -19,7 +19,8 @@ import java.util.List;
 public class RestaurantService {
     @Autowired
     private RestaurantRepository restaurantRepository;
-    @Autowired private RestaurantOwnerRepository restaurantOwnerRepository;
+    @Autowired
+    private RestaurantOwnerRepository restaurantOwnerRepository;
 
     public RestaurantResponseDTO createRestaurant(RestaurantRequestDTO dto, Integer ownerId) {
 
@@ -61,6 +62,16 @@ public class RestaurantService {
 
         return RestaurantResponseDTO.fromEntity(restaurants);
     }
+    public List<RestaurantResponseDTO>  getRestaurantsUnderDeliveryFee(double maxFee){
+        List<Restaurant> restaurants = restaurantRepository.findByDeliveryFeeLessThanEqual(maxFee);
+
+        return RestaurantResponseDTO.fromEntity(restaurants);
+    }
+   public RestaurantResponseDTO getMenuForRestaurant(Integer restaurantId){
+
+   }
+
+
 
 
 
