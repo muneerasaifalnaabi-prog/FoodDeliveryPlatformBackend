@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface DeliveryDriverRepository extends JpaRepository<DeliveryDriver, Integer> {
@@ -13,4 +14,15 @@ public interface DeliveryDriverRepository extends JpaRepository<DeliveryDriver, 
 
     @Query(" SELECT d FROM DeliveryDriver d WHERE d.isOnline = true AND d.isActive = true ")
     Optional<DeliveryDriver> findFirstAvailableOnlineDriver();
+
+    @Query(" SELECT d FROM DeliveryDriver d WHERE d.email = :email AND d.isActive = true ")
+    Optional<DeliveryDriver> findDriverByEmail( @Param("email") String email );
+
+    @Query(" SELECT d FROM DeliveryDriver d WHERE d.isActive = true ")
+    List<DeliveryDriver> findAllActiveDrivers();
+
+    @Query(" SELECT d FROM DeliveryDriver d WHERE d.isOnline = true AND d.isActive = true ")
+    List<DeliveryDriver> findOnlineDrivers();
+
+
 }

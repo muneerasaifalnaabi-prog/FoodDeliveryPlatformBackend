@@ -34,7 +34,7 @@ public class CorporateOrderResponseDTO {
         dto.setStatus(entity.getStatus());
         dto.setTotalAmount(entity.getTotalAmount());
         dto.setRestaurant(RestaurantSummaryDTO.fromEntity(entity.getRestaurant()));
-        dto.setItems(OrderItemResponseDTO.fromEntityList(entity.getCorporateOrderItems()));
+        dto.setItems(OrderItemResponseDTO.fromEntity(entity.getCorporateOrderItems()));
 
         return dto;
     }

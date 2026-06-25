@@ -3,11 +3,14 @@ package com.fooddelivery.demo.Services;
 import com.fooddelivery.demo.Entities.Delivery;
 import com.fooddelivery.demo.Entities.DeliveryDriver;
 import com.fooddelivery.demo.Entities.Orders;
+import com.fooddelivery.demo.Exceptions.DuplicateResourceException;
 import com.fooddelivery.demo.Exceptions.InvalidOrderStateException;
 import com.fooddelivery.demo.Exceptions.ResourceNotFoundException;
 import com.fooddelivery.demo.Repositories.DeliveryDriverRepository;
 import com.fooddelivery.demo.Repositories.DeliveryRepository;
 import com.fooddelivery.demo.Repositories.OrdersRepository;
+import com.fooddelivery.demo.Utils.HelperUtils;
+import com.fooddelivery.demo.dto.RequestDTO.DeliveryDriverRequestDTO;
 import com.fooddelivery.demo.dto.ResponseDTO.DeliveryDriverResponseDTO;
 import com.fooddelivery.demo.dto.ResponseDTO.DeliveryResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class DeliveryService {
@@ -126,9 +130,57 @@ public class DeliveryService {
             return "Driver is now ONLINE";
         }
         return "Driver is now OFFLINE";
+    }
+
+    public DeliveryDriverResponseDTO createDriver(DeliveryDriverRequestDTO dto) {
+
+        Optional<DeliveryDriver> existingDriver = deliveryDriverRepository.findDriverByEmail(dto.getEmail());
+
+        if (existingDriver.isPresent()) {
+            throw DuplicateResourceException.alreadyExists("Driver email", dto.getEmail());
+        }
+
+        DeliveryDriver driver = dto.toEntity();
+        driver.setDriverCode(HelperUtils.generateCode("DRV"));
+        driver.setCreatedDate(LocalDateTime.now());
+        driver.setUpdatedDate(LocalDateTime.now());
+        driver.setIsActive(true);
+
+        DeliveryDriver savedDriver = deliveryDriverRepository.save(driver);
+        return DeliveryDriverResponseDTO.fromEntity(savedDriver);
+    }
+
+    public List<DeliveryDriverResponseDTO> getAllDrivers() {
+        List<DeliveryDriver> drivers = deliveryDriverRepository.findAllActiveDrivers();
+        return DeliveryDriverResponseDTO.fromEntity(drivers);
+    }
+
+    public List<DeliveryDriverResponseDTO> getOnlineDrivers() {
+        List<DeliveryDriver> drivers = deliveryDriverRepository.findOnlineDrivers();
+        return DeliveryDriverResponseDTO.fromEntity(drivers);
 
     }
 
+    public List<DeliveryResponseDTO> getDriverDeliveries(Integer driverId) {
+        DeliveryDriver driver = deliveryDriverRepository.findDriverById(driverId).orElseThrow(() -> ResourceNotFoundException.notFound("Driver", driverId));
+        List<Delivery> deliveries = deliveryRepository.findDeliveriesByDriverId(driver.getId());
+        return DeliveryResponseDTO.fromEntity(deliveries);
+    }
+
+    public DeliveryResponseDTO getActiveDriverDelivery(Integer driverId) {
+        DeliveryDriver driver = deliveryDriverRepository.findDriverById(driverId).orElseThrow(() -> ResourceNotFoundException.notFound("Driver", driverId));
+        Delivery delivery = deliveryRepository.findActiveDeliveryByDriverId(driver.getId()).orElseThrow(() -> new ResourceNotFoundException("No active delivery found for this driver."));
+        return DeliveryResponseDTO.fromEntity(delivery);
+    }
+
+    public DeliveryResponseDTO getDeliveryById(Integer deliveryId) {
+        Delivery delivery = deliveryRepository.findDeliveryById(deliveryId).orElseThrow(() -> ResourceNotFoundException.notFound("Delivery", deliveryId));
+        return DeliveryResponseDTO.fromEntity(delivery);
+    }
+
+    public List<DeliveryResponseDTO> getDeliveriesByStatus(String status) {
+        List<Delivery> deliveries = deliveryRepository.findByStatus(status);
+        return DeliveryResponseDTO.fromEntity(deliveries);
+    }
 
 }
-
