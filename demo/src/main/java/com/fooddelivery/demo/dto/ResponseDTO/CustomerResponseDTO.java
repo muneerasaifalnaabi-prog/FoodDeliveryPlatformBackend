@@ -4,6 +4,9 @@ import com.fooddelivery.demo.Entities.Customer;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 public class CustomerResponseDTO {
@@ -28,6 +31,15 @@ public class CustomerResponseDTO {
         dto.setCustomerCode(entity.getCustomerCode());
 
         return dto;
+    }
+    public static List<CustomerResponseDTO> fromEntity(List<Customer> entities) {
+        List<CustomerResponseDTO> dtos = new ArrayList<>();
+
+        for (Customer entity : entities) {
+            dtos.add(fromEntity(entity));
+        }
+
+        return dtos;
     }
 
 }

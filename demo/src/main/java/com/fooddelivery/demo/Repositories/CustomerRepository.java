@@ -23,6 +23,11 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
     @Query("SELECT c FROM Customer c WHERE c.isActive = TRUE AND c.id = :customerId")
     Optional<Customer> findCustomerById(@Param("customerId") Integer customerId);
 
+    @Query("SELECT c FROM Customer c WHERE c.isActive = true")
+    List<Customer> findAllActiveCustomers();
+
+    @Query("SELECT c FROM Customer c WHERE c.email = :email AND c.isActive = true ")
+    Optional<Customer> findCustomerByEmail( @Param("email") String email );
 
 
 
