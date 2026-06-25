@@ -55,12 +55,12 @@ public class OrdersResponseDTO {
             dto.setPayment(PaymentSummaryDTO.fromEntity(entity.getPayment()));
         }
 
-        dto.setOrderItems(OrderItemResponseDTO.fromEntityList(entity.getOrderItems()));
+        dto.setOrderItems(OrderItemResponseDTO.fromEntity(entity.getOrderItems()));
 
         return dto;
     }
 
-    public static List<OrdersResponseDTO> fromEntityList(List<Orders> entities){
+    public static List<OrdersResponseDTO> fromEntity(List<Orders> entities){
 
         List<OrdersResponseDTO> dtos = new ArrayList<>();
         for (Orders entity : entities) {

@@ -32,7 +32,7 @@ public class OrderItemResponseDTO {
         return dto;
     }
 
-    public static List<OrderItemResponseDTO> fromEntityList(List<OrderItem> entities) {
+    public static List<OrderItemResponseDTO> fromEntity(List<OrderItem> entities) {
 
         List<OrderItemResponseDTO> dtos = new ArrayList<>();
         for (OrderItem entity : entities) {

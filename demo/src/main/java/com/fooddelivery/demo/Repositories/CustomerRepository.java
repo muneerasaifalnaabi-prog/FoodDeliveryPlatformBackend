@@ -1,7 +1,8 @@
 package com.fooddelivery.demo.Repositories;
 
 import com.fooddelivery.demo.Entities.Customer;
-import org.antlr.v4.runtime.atn.SemanticContext;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -28,6 +29,9 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
 
     @Query("SELECT c FROM Customer c WHERE c.email = :email AND c.isActive = true ")
     Optional<Customer> findCustomerByEmail( @Param("email") String email );
+
+    @Query("SELECT c FROM Customer c WHERE c.isActive = true AND ( LOWER(c.firstName) LIKE LOWER(CONCAT('%', :name, '%')) OR LOWER(c.lastName) LIKE LOWER(CONCAT('%', :name, '%')) ) ")
+    Page<Customer> searchCustomersByName(@Param("name") String name, Pageable pageable );
 
 
 
