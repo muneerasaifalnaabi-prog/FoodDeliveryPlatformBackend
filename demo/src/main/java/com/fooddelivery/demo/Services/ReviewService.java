@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class ReviewService {
@@ -54,5 +55,21 @@ public class ReviewService {
         review.setUpdatedDate( LocalDateTime.now() );
         review.setIsActive(true);
 
-        return ReviewResponseDTO.fromEntity( reviewRepository.save(review) ); } }
+        return ReviewResponseDTO.fromEntity( reviewRepository.save(review) );
+    }
+    public List<ReviewResponseDTO> getDriverReviews(Integer driverId) {
+        DeliveryDriver driver =deliveryDriverRepository.findDriverById(driverId).orElseThrow(() -> ResourceNotFoundException.notFound( "Driver", driverId ) );
+        List<Review> reviews = reviewRepository.findReviewsByDriverId(driver.getId());
+        return ReviewResponseDTO.fromEntity(reviews);
+    }
+    public String deleteReview(Integer reviewId) {
+        Review review =reviewRepository.findReviewById(reviewId).orElseThrow(() -> ResourceNotFoundException.notFound( "Review", reviewId ) );
+        review.setIsActive(false);
+        review.setUpdatedDate(LocalDateTime.now());
+        reviewRepository.save(review);
+        return "DELETED";
+    }
+
+
+}
 

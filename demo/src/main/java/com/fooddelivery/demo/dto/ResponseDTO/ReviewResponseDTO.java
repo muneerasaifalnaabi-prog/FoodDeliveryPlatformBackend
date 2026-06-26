@@ -42,7 +42,7 @@ public class ReviewResponseDTO {
         return dto;
     }
 
-    public static List<ReviewResponseDTO> fromEntityList(List<Review> entities) {
+    public static List<ReviewResponseDTO> fromEntity(List<Review> entities) {
 
         List<ReviewResponseDTO> dtos = new ArrayList<>();
 
