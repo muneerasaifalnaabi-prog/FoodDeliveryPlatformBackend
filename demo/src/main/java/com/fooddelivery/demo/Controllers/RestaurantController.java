@@ -1,5 +1,6 @@
 package com.fooddelivery.demo.Controllers;
 
+import com.fooddelivery.demo.Services.OrderService;
 import com.fooddelivery.demo.Services.RestaurantService;
 import com.fooddelivery.demo.dto.RequestDTO.ComboMealRequestDTO;
 import com.fooddelivery.demo.dto.RequestDTO.MenuItemRequestDTO;
@@ -13,13 +14,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping
+@RequestMapping("/api/restaurants")
 public class RestaurantController {
     @Autowired
     private RestaurantService restaurantService;
+    @Autowired
+    private OrderService orderService;
 
     @PostMapping("/owner/{ownerId}")
     public ResponseEntity<RestaurantResponseDTO> createRestaurant(@PathVariable Integer ownerId, @Valid @RequestBody RestaurantRequestDTO dto) {
@@ -42,17 +47,17 @@ public class RestaurantController {
     }
 
     @PutMapping("/{id}/toggle-orders")
-    public ResponseEntity<List<RestaurantResponseDTO>> toggleOrders(@PathVariable Integer id, @RequestParam Boolean accepting) {
-        return ResponseEntity.ok((List<RestaurantResponseDTO>) restaurantService.toggleAcceptingOrders(id, accepting));
-
+    public ResponseEntity<RestaurantResponseDTO> toggleOrders( @PathVariable Integer id, @RequestParam Boolean accepting ) {
+        return ResponseEntity.ok( restaurantService .toggleAcceptingOrders( id, accepting ) );
     }
+
 
     @PutMapping("/{id}/fee/{newFee}")
     public ResponseEntity<RestaurantResponseDTO> updateDeliveryFee(@PathVariable Integer id, @PathVariable Double newFee) {
         return ResponseEntity.ok(restaurantService.updateDeliveryFee(id, newFee));
     }
 
-    //....check  this <added list in getMenuForRestaurant !!
+
     @GetMapping("/{id}/menu")
     public ResponseEntity<List<MenuItemResponseDTO>> getRestaurantMenu(@PathVariable Integer id) {
         return ResponseEntity.ok(restaurantService.getMenuForRestaurant(id));
@@ -65,23 +70,30 @@ public class RestaurantController {
 
     @PostMapping("/{id}/menu")
     public ResponseEntity<MenuItemResponseDTO> addNewMenuItem(@PathVariable Integer id, @Valid @RequestBody MenuItemRequestDTO dto) {
-        return new ResponseEntity<>(restaurantService.addNewMenuItem(id,dto), HttpStatus.CREATED);
+        return new ResponseEntity<>(restaurantService.addNewMenuItem(id, dto), HttpStatus.CREATED);
     }
 
-    @PutMapping("/menu/{itemId}/")
+    @PutMapping("/menu/{itemId}/available")
     public ResponseEntity<MenuItemResponseDTO> updateMenuItemAvailability(@PathVariable Integer itemId, @RequestParam Boolean status) {
-        return new ResponseEntity<>(restaurantService.updateMenuItemAvailability(itemId,status), HttpStatus.NOT_FOUND);
+        return ResponseEntity.ok(restaurantService.updateMenuItemAvailability(itemId, status));
     }
 
     @PostMapping("/{id}/combos")
     public ResponseEntity<ComboMealResponseDTO> createNewComboMeal(@PathVariable Integer id, @Valid @RequestBody ComboMealRequestDTO dto) {
-        return new ResponseEntity<>(restaurantService.createNewComboMeal(id,dto), HttpStatus.CREATED);
+        return new ResponseEntity<>(restaurantService.createNewComboMeal(id, dto), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}/bulk-price-increase")
     public ResponseEntity<List<MenuItemResponseDTO>> bulkUpdateMenuItemPrices(@PathVariable Integer id, @RequestParam Double percentage) {
         return ResponseEntity.ok(restaurantService.bulkUpdateMenuItemPrices(id, percentage));
     }
+
+    @GetMapping("/{id}/analytics")
+    public ResponseEntity<Map<String, Object>> getRestaurantAnalytics(@PathVariable Integer id) {
+
+        return ResponseEntity.ok(restaurantService.getRestaurantAnalytics(id));
+    }
+
     /*
     @GetMapping("/near")
     public ResponseEntity<List<RestaurantResponseDTO>> getNearbyRestaurants( @RequestParam double lat, @RequestParam double lng, @RequestParam double radiusKm ) {
@@ -90,11 +102,14 @@ public class RestaurantController {
 
      */
     @GetMapping("/{id}/menu/top-sellers")
-    public ResponseEntity<List<MenuItemResponseDTO>> getTopSellingMenuItems( @PathVariable Integer id ) {
-        return ResponseEntity.ok( restaurantService.getTopSellingMenuItems(id) );
+    public ResponseEntity<List<MenuItemResponseDTO>> getTopSellingMenuItems(@PathVariable Integer id) {
+        return ResponseEntity.ok(restaurantService.getTopSellingMenuItems(id));
     }
-    @GetMapping("/menu/search") public ResponseEntity<List<MenuItemResponseDTO>> searchMenuItems( @RequestParam String keyword, @RequestParam Integer minCalories, @RequestParam Integer maxCalories ) {
-        return ResponseEntity.ok( restaurantService.searchMenuItems( keyword, minCalories, maxCalories ) );
+
+    @GetMapping("/search")
+    public ResponseEntity<List<RestaurantResponseDTO>>
+    searchRestaurants(@RequestParam String name, @RequestParam Integer page, @RequestParam Integer size) {
+        return ResponseEntity.ok(restaurantService.searchRestaurants(name, page, size));
     }
 
 

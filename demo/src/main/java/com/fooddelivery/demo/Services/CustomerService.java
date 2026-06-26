@@ -218,20 +218,40 @@ public class CustomerService {
         return orders.map(OrdersResponseDTO::fromEntity);
     }
 
+
     public CustomerResponseDTO patchCustomer(Integer customerId, CustomerPatchDTO dto) {
         Customer customer = customerRepository.findCustomerById(customerId).orElseThrow(() -> ResourceNotFoundException.notFound("Customer", customerId));
-        if (dto.getPhone() != null) {
-            customer.setPhone(dto.getPhone());
-        }
         if (dto.getFirstName() != null) {
             customer.setFirstName(dto.getFirstName());
         }
         if (dto.getLastName() != null) {
             customer.setLastName(dto.getLastName());
         }
+
+        if (dto.getPhone() != null) {
+            customer.setPhone(dto.getPhone());
+        }
+
+        if (dto.getEmail() != null) {
+            customer.setEmail(dto.getEmail());
+        }
+
         customer.setUpdatedDate(LocalDateTime.now());
-        return CustomerResponseDTO.fromEntity(customerRepository.save(customer));
+
+        customerRepository.save(customer);
+
+        CustomerResponseDTO response = new CustomerResponseDTO();
+        response.setId(customer.getId());
+        response.setFirstName(customer.getFirstName());
+        response.setLastName(customer.getLastName());
+        response.setPhone(customer.getPhone());
+        response.setEmail(customer.getEmail());
+
+        return response;
     }
+
+
+
 }
 
 

@@ -38,10 +38,6 @@ public class OrderService {
         Customer customer = customerRepository.findCustomerById(customerId).orElseThrow(() -> ResourceNotFoundException.notFound("Restaurant", customerId));
         Restaurant restaurant = restaurantRepository.findRestaurantById(restaurantId).orElseThrow(() -> ResourceNotFoundException.notFound("Restaurant", restaurantId));
 
-        if (items == null || items.isEmpty()) {
-            throw new InvalidOrderStateException("Order must contain at least one item.");
-        }
-
         Orders order = new Orders();
         order.setCustomer(customer);
         order.setRestaurant(restaurant);
