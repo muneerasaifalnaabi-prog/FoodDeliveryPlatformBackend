@@ -1,21 +1,29 @@
 package com.fooddelivery.demo.Services;
 
+import com.fooddelivery.demo.Entities.ComboMeal;
 import com.fooddelivery.demo.Entities.MenuItem;
 import com.fooddelivery.demo.Entities.Restaurant;
 import com.fooddelivery.demo.Entities.RestaurantOwner;
+import com.fooddelivery.demo.Exceptions.DuplicateResourceException;
 import com.fooddelivery.demo.Exceptions.InvalidOrderStateException;
 import com.fooddelivery.demo.Exceptions.ResourceNotFoundException;
+import com.fooddelivery.demo.Repositories.ComboMealRepository;
 import com.fooddelivery.demo.Repositories.MenuItemRepository;
 import com.fooddelivery.demo.Repositories.RestaurantOwnerRepository;
 import com.fooddelivery.demo.Repositories.RestaurantRepository;
+import com.fooddelivery.demo.dto.RequestDTO.ComboMealRequestDTO;
+import com.fooddelivery.demo.dto.RequestDTO.MenuItemRequestDTO;
 import com.fooddelivery.demo.dto.RequestDTO.RestaurantRequestDTO;
+import com.fooddelivery.demo.dto.ResponseDTO.ComboMealResponseDTO;
 import com.fooddelivery.demo.dto.ResponseDTO.MenuItemResponseDTO;
 import com.fooddelivery.demo.dto.ResponseDTO.RestaurantResponseDTO;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -26,6 +34,8 @@ public class RestaurantService {
     private RestaurantOwnerRepository restaurantOwnerRepository;
     @Autowired
     private MenuItemRepository menuItemRepository;
+    @Autowired
+    private ComboMealRepository comboMealRepository;
 
     public RestaurantResponseDTO createRestaurant(RestaurantRequestDTO dto, Integer ownerId) {
 
@@ -98,6 +108,67 @@ public class RestaurantService {
     }
 
 
+    public List<RestaurantResponseDTO> getAllRestaurant() {
+        return RestaurantResponseDTO.fromEntity(restaurantRepository.getAllRestaurant());
+    }
+
+    public RestaurantResponseDTO getRestaurantById(Integer restaurantId) {
+        if (restaurantRepository.findRestaurantById(restaurantId).isPresent()) {
+            return RestaurantResponseDTO.fromEntity(restaurantRepository.findRestaurantById(restaurantId).get());
+        }
+        throw ResourceNotFoundException.notFound("Restaurant", restaurantId);
+    }
+
+    public List<ComboMealResponseDTO> getRestaurantCombos(Integer restaurantId) {
+        Restaurant restaurant = restaurantRepository.findRestaurantById(restaurantId).orElseThrow(() -> ResourceNotFoundException.notFound("Restaurant", restaurantId));
+        List<ComboMeal> comboMeals = comboMealRepository.findByRestaurantId(restaurantId);
+        return ComboMealResponseDTO.fromEntityList(comboMeals);
+    }
+
+    public MenuItemResponseDTO addNewMenuItem(Integer restaurantId, MenuItemRequestDTO dto) {
+        Restaurant restaurant = restaurantRepository.findRestaurantById(restaurantId).orElseThrow(() -> ResourceNotFoundException.notFound("Restaurant", restaurantId));
+
+        MenuItem item = dto.toEntity();
+        item.setRestaurant(restaurant);
+        item.setCreatedDate(LocalDateTime.now());
+        item.setUpdatedDate(LocalDateTime.now());
+        item.setIsActive(true);
+
+        return MenuItemResponseDTO.fromEntity(menuItemRepository.save(item));
+    }
+
+    public MenuItemResponseDTO updateMenuItemAvailability(Integer itemId, boolean status) {
+        MenuItem item = menuItemRepository.findMenuItemById(itemId).orElseThrow(() -> ResourceNotFoundException.notFound("Menu Item", itemId));
+
+        item.setIsAvailable(status);
+        item.setUpdatedDate(LocalDateTime.now());
+
+        return MenuItemResponseDTO.fromEntity(menuItemRepository.save(item));
+    }
+
+    /*public ComboMealResponseDTO createNewComboMeal(Integer restaurantId, ComboMealRequestDTO dto) {
+        Restaurant restaurant = restaurantRepository.findRestaurantById(restaurantId).orElseThrow(() -> ResourceNotFoundException.notFound("Restaurant", restaurantId));
+        ComboMeal combo = dto.toEntity();
+        combo.setRestaurant(restaurant);
+        List<MenuItem> menuItems = new ArrayList<>();
+        //i will check error here ..
+        for (Integer menuItemId : dto.menuItems()) {
+            MenuItem item = menuItemRepository.findMenuItemById(menuItemId).orElseThrow(() -> ResourceNotFoundException.notFound("Menu Item", menuItemId));
+            List<ComboMeal> existingCombos = comboMealRepository.findComboMealsContainingMenuItem(menuItemId);
+            if (!existingCombos.isEmpty()) {
+                throw new DuplicateResourceException("Menu item with ID " + menuItemId + " already exists inside another combo meal.");
+            }
+            menuItems.add(item);
+        }
+        combo.setMenuItems(menuItems);
+        combo.setCreatedDate(LocalDateTime.now());
+        combo.setUpdatedDate(LocalDateTime.now());
+        combo.setIsActive(true);
+
+        return ComboMealResponseDTO.fromEntity(comboMealRepository.save(combo));
+    }
+
+     */
 }
 
 

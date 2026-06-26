@@ -15,7 +15,7 @@ public class DeliveryController {
     @Autowired
     DeliveryService  deliveryService;
 
-    @PostMapping("/order/{orderId}/assign-manual/{driverId")
+    @PostMapping("/order/{orderId}/assign-manual/{driverId}")
     public ResponseEntity<DeliveryResponseDTO> assignDriverToOrders(@PathVariable Integer orderId, @PathVariable Integer driverId){
         return ResponseEntity.ok(deliveryService.assignDriverToOrders(orderId, driverId));
     }

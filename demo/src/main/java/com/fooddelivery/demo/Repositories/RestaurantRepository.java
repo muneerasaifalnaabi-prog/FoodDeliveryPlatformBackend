@@ -1,5 +1,6 @@
 package com.fooddelivery.demo.Repositories;
 
+import com.fooddelivery.demo.Entities.ComboMeal;
 import com.fooddelivery.demo.Entities.Restaurant;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -26,4 +27,10 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, Integer>
 
     @Query("SELECT r FROM Restaurant r WHERE r.isActive = TRUE AND r.id = :restaurantId")
     Optional<Restaurant> findRestaurantById(@Param("restaurantId") Integer restaurantId);
+
+    @Query("SELECT r FROM Restaurant r WHERE r.isActive = TRUE AND r.id = :restaurantId")
+    List<Restaurant>getAllRestaurant();
+
+    @Query(" SELECT c FROM ComboMeal c WHERE c.restaurant.id = :restaurantId AND c.isActive = true ")
+    List<ComboMeal> findCombosByRestaurantId(@Param("restaurantId") Integer restaurantId );
 }

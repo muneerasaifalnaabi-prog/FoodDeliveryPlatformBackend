@@ -28,7 +28,8 @@ public class DriverController {
     public ResponseEntity<List<DeliveryDriverResponseDTO>> getAllDrivers() {
         return ResponseEntity.ok(deliveryService.getAllDrivers());
     }
-    @GetMapping("/online") public ResponseEntity<List<DeliveryDriverResponseDTO>> getOnlineDrivers() {
+    @GetMapping("/online")
+    public ResponseEntity<List<DeliveryDriverResponseDTO>> getOnlineDrivers() {
         return ResponseEntity.ok(deliveryService.getOnlineDrivers());
     }
     @PutMapping("/{id}/status") 

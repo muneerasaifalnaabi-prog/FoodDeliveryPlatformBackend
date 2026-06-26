@@ -26,7 +26,7 @@ public class ComboMealRequestDTO {
     private Boolean isAvailable;
 
     @NotEmpty(message = "Combo meal must contain at least one menu item")
-    private List<Integer> menuItems;
+    public List<Integer> menuItems;
 
     public ComboMeal toEntity() {
         ComboMeal comboMeal = new ComboMeal();
@@ -42,5 +42,6 @@ public class ComboMealRequestDTO {
         comboMeal.setTotalPrice(totalPrice);
         comboMeal.setIsAvailable(isAvailable != null ? isAvailable : comboMeal.getIsAvailable());
     }
+
 
 }
