@@ -1,9 +1,6 @@
 package com.fooddelivery.demo.Controllers;
 
-import com.fooddelivery.demo.Services.CustomerService;
-import com.fooddelivery.demo.Services.DeliveryService;
-import com.fooddelivery.demo.Services.OrderService;
-import com.fooddelivery.demo.Services.RestaurantService;
+import com.fooddelivery.demo.Services.*;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,27 +22,29 @@ public class ReportingController {
     DeliveryService deliveryService;
     @Autowired
     CustomerService customerService;
+    @Autowired
+    private ReportingService reportingService;
 
     @GetMapping("/revenue/restaurant/{restaurantId}")
-    public ResponseEntity<BigDecimal> getRestaurantRevenue(@PathVariable Integer restaurantId, @RequestParam Data data) {
-        return ResponseEntity.ok(restaurantService.getRestaurantRevenue(restaurantId,data));
+    public ResponseEntity<Double> getRestaurantRevenue(@PathVariable Integer restaurantId, @RequestParam Data data) {
+        return ResponseEntity.ok(reportingService.getRestaurantRevenue(restaurantId,data));
     }
     @GetMapping("/orders/count/restaurant/{restaurantId}")
-    public ResponseEntity<Long> totalOrders(@PathVariable Integer restaurantId) {
-        return ResponseEntity.ok(restaurantService.totalOrders(restaurantId));
+    public ResponseEntity<Integer> totalOrders(@PathVariable Integer restaurantId) {
+        return ResponseEntity.ok(reportingService.totalOrders(restaurantId));
 
     }
     @GetMapping("/customers/top-loyalty")
     public ResponseEntity<Integer> getTop10LoyaltyCustomers() {
-        return ResponseEntity.ok(customerService.getTop10LoyaltyCustomers());
+        return ResponseEntity.ok(reportingService.getTop10LoyaltyCustomers());
     }
     @GetMapping("/drivers/leaderboard")
     public ResponseEntity<Integer> getTop10DriverLeaderboard() {
-        return ResponseEntity.ok(deliveryService.getTop10DriverLeaderboard());
+        return ResponseEntity.ok(reportingService.getTop10DriverLeaderboard());
     }
     @GetMapping("/platform/daily-summary")
     public ResponseEntity<Map<String, Object>> getPlatformDailySummary(@RequestParam Date date ) {
-        return ResponseEntity.ok( orderService.getPlatformDailySummary(date) ); }
+        return ResponseEntity.ok( reportingService.getPlatformDailySummary(date) ); }
 
 
 
