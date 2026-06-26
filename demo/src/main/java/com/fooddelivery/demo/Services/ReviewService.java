@@ -11,9 +11,14 @@ import com.fooddelivery.demo.Repositories.RestaurantRepository;
 import com.fooddelivery.demo.Repositories.ReviewRepository;
 import com.fooddelivery.demo.dto.ResponseDTO.ReviewResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -68,6 +73,22 @@ public class ReviewService {
         review.setUpdatedDate(LocalDateTime.now());
         reviewRepository.save(review);
         return "DELETED";
+    }
+    public Double getRestaurantAverageRating( Integer restaurantId ) {
+        Double averageRating = reviewRepository .getRestaurantAverageRating( restaurantId );
+        return averageRating != null ? averageRating : 0.0;
+    }
+    public Double getDriverAverageRating( Integer driverId ) {
+        Double averageRating = reviewRepository .getDriverAverageRating( driverId );
+        return averageRating != null ? averageRating : 0.0;
+    }
+    public Page<ReviewResponseDTO> getRestaurantReviews(Integer restaurantId, int page, int size ) {
+        Pageable pageable = PageRequest.of(page, size); Page<Review> reviews = reviewRepository .findRestaurantReviews( restaurantId, pageable );
+        List<ReviewResponseDTO> response = new ArrayList<>();
+        for (Review review : reviews.getContent()) {
+            response.add( ReviewResponseDTO .fromEntity(review) );
+    }
+        return new PageImpl<>( response, pageable, reviews.getTotalElements() );
     }
 
 

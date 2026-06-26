@@ -5,6 +5,7 @@ import com.fooddelivery.demo.dto.RequestDTO.ReviewRequestDTO;
 import com.fooddelivery.demo.dto.ResponseDTO.ReviewResponseDTO;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +36,15 @@ public class ReviewController {
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<String> deleteReview(@PathVariable Integer reviewId) {
         return new ResponseEntity<>(reviewService.deleteReview(reviewId), HttpStatus.NO_CONTENT);
+    }
+    @GetMapping("/restaurant/{restaurantId}/average") public ResponseEntity<Double> getRestaurantAverageRating( @PathVariable Integer restaurantId ) {
+        return ResponseEntity.ok( reviewService.getRestaurantAverageRating( restaurantId ) );
+    }
+    @GetMapping("/driver/{driverId}/average") public ResponseEntity<Double> getDriverAverageRating( @PathVariable Integer driverId ) {
+        return ResponseEntity.ok( reviewService.getDriverAverageRating( driverId ) );
+    }
+    @GetMapping("/restaurant/{restaurantId}") public ResponseEntity<Page<ReviewResponseDTO>> getRestaurantReviews(@PathVariable Integer restaurantId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size ) {
+        return ResponseEntity.ok( reviewService.getRestaurantReviews( restaurantId, page, size ) );
     }
 
 
