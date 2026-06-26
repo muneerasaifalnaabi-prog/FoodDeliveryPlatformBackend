@@ -49,5 +49,20 @@ public class PaymentService {
         payment.setIsActive(false);
         return PaymentResponseDTO.fromEntity(paymentRepository.save(payment));
     }
+    public PaymentResponseDTO completePayment( Integer paymentId ) {
+       Payment payment = paymentRepository.findPaymentById( paymentId ).orElseThrow(() -> ResourceNotFoundException.notFound( "Payment", paymentId ) );
+       payment.setStatus("COMPLETED");
+       payment.setUpdatedDate(LocalDateTime.now());
+       payment.setProcessedAt(LocalDateTime.now());
+       return PaymentResponseDTO.fromEntity(paymentRepository.save(payment));
+    }
+
+    public PaymentResponseDTO getPaymentByOrderId( Integer orderId ) {
+        Orders orders = ordersRepository.findById(orderId).orElseThrow(() -> ResourceNotFoundException.notFound( "Order", orderId ) );
+        Payment payment = paymentRepository.findPaymentByOrderId(orders.getId()).orElseThrow(() -> ResourceNotFoundException.notFound( "Payment", orders.getId() ) );
+        return PaymentResponseDTO.fromEntity(payment);
+    }
+
+
 
 }

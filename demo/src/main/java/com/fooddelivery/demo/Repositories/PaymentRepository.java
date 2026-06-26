@@ -10,4 +10,7 @@ import java.util.Optional;
 public interface PaymentRepository extends JpaRepository<Payment, Integer> {
     @Query(" SELECT p FROM Payment p WHERE p.orders.id = :orderId AND p.isActive = true ")
     Optional<Payment> findPaymentByOrderId(@Param("orderId") Integer orderId );
+
+    @Query("SELECT p FROM Payment p WHERE p.id = :paymentId AND p.isActive = true ")
+    Optional<Payment> findPaymentById( @Param("paymentId") Integer paymentId );
 }

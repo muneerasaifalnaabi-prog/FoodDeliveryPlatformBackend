@@ -37,5 +37,7 @@ public interface OrdersRepository extends JpaRepository<Orders, Integer> {
 
     @Query("SELECT o FROM Orders o WHERE o.customer.id = :customerId AND o.status = :status AND o.orderDate BETWEEN :fromDate AND :toDate AND o.isActive = true ")
     Page<Orders> filterCustomerOrders(@Param("customerId") Integer customerId, @Param("status") String status, @Param("fromDate") LocalDateTime fromDate, @Param("toDate") LocalDateTime toDate, Pageable pageable );
+    @Query(" SELECT o FROM Orders o WHERE o.restaurant.id = :restaurantId AND o.status = :status AND o.isActive = true ")
+    List<Orders> findOrdersByRestaurantAndStatus( @Param("restaurantId") Integer restaurantId, @Param("status") String status );
 
 }

@@ -37,7 +37,63 @@ public class OrderService {
         Customer customer = customerRepository.findCustomerById(customerId).orElseThrow(() -> ResourceNotFoundException.notFound("Restaurant", customerId));
         Restaurant restaurant = restaurantRepository.findRestaurantById(restaurantId).orElseThrow(() -> ResourceNotFoundException.notFound("Restaurant", restaurantId));
 
-        return createOrder(customerId, restaurantId, items, null);
+        if (items == null || items.isEmpty()) {
+            throw new InvalidOrderStateException("Order must contain at least one item.");
+        }
+
+        Orders order = new Orders();
+        order.setCustomer(customer);
+        order.setRestaurant(restaurant);
+        order.setStatus("PENDING");
+        order.setOrderDate(LocalDateTime.now());
+        order.setCreatedDate(LocalDateTime.now());
+        order.setUpdatedDate(LocalDateTime.now());
+        order.setIsActive(true);
+        order.setOrderCode(HelperUtils.generateCode("ORD"));
+
+        Orders savedOrder = ordersRepository.save(order);
+
+
+        List<OrderItem> orderItems = new ArrayList<>();
+        BigDecimal subtotal = BigDecimal.ZERO;
+
+        for (OrderItemRequestDTO dto : items) {
+            if (dto.getQuantity() <= 0) {
+                throw InvalidOrderStateException.invalidState("Quantity must be greater than zero.");
+            }
+
+            MenuItem menuItem = menuItemRepository.findMenuItemById(dto.getMenuItemId()).orElseThrow(() -> ResourceNotFoundException.notFound("Menu Item", dto.getMenuItemId()));
+
+            if (!menuItem.getRestaurant().getId().equals(restaurantId)) {
+                throw InvalidOrderStateException.invalidState("All menu items must belong to the same restaurant.");
+            }
+
+            OrderItem item = new OrderItem();
+            item.setOrders(savedOrder);
+            item.setMenuItem(menuItem);
+            item.setQuantity(dto.getQuantity());
+            BigDecimal itemPrice = HelperUtils.calculateItemTotal(menuItem.getPrice(), dto.getQuantity());
+            item.setTotalPrice(itemPrice);
+            item.setCreatedDate(LocalDateTime.now());
+            item.setUpdatedDate(LocalDateTime.now());
+            item.setIsActive(true);
+            subtotal = subtotal.add(itemPrice);
+
+            orderItemRepository.save(item);
+            orderItems.add(item);
+        }
+
+        if (subtotal.compareTo(restaurant.getMinOrderAmount()) < 0) {
+            throw new InvalidOrderStateException("Order does not meet the minimum order amount.");
+        }
+        BigDecimal total = subtotal.add(restaurant.getDeliveryFee());
+        savedOrder.setSubtotal(subtotal);
+        savedOrder.setTotalAmount(total);
+        savedOrder.setOrderItems(orderItems);
+        savedOrder.setUpdatedDate(LocalDateTime.now());
+
+        Orders updatedOrder = ordersRepository.save(savedOrder);
+        return OrdersResponseDTO.fromEntity(updatedOrder);
     }
 
     public OrdersResponseDTO createOrder(Integer customerId, Integer restaurantId, List<OrderItemRequestDTO> items, String notes) {
@@ -304,6 +360,17 @@ public class OrderService {
 
         return CorporateOrderResponseDTO.fromEntity(corporateOrderRepository.save(savedOrder));
 
+    }
+
+    public OrdersResponseDTO getOrderById(Integer orderId) {
+        Orders order = ordersRepository.findOrderById(orderId).orElseThrow(() -> ResourceNotFoundException.notFound("Order", orderId));
+        return OrdersResponseDTO.fromEntity(order);
+    }
+
+    public List<OrdersResponseDTO> getRestaurantOrders(Integer restaurantId, String status) {
+        Restaurant restaurant = restaurantRepository.findRestaurantById(restaurantId).orElseThrow(() -> ResourceNotFoundException.notFound("Restaurant", restaurantId));
+        List<Orders> orders = ordersRepository.findOrdersByRestaurantAndStatus(restaurant.getId(), status);
+        return OrdersResponseDTO.fromEntity(orders);
     }
 
 
