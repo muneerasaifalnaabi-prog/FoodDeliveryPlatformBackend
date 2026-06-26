@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("(/api/orders")
+@RequestMapping("/api/orders")
 public class OrderController {
     @Autowired
     private RestaurantService restaurantService;
@@ -29,7 +29,7 @@ public class OrderController {
         return new ResponseEntity<>(orderService.createOrder(customerId, restaurantId, new ArrayList<>()), HttpStatus.CREATED);
     }
 
-    @PostMapping(" /{id}/items")
+    @PostMapping("/{id}/items")
     public ResponseEntity<OrdersResponseDTO> createOrderItem(@PathVariable Integer id, @RequestBody OrderItemRequestDTO dto) {
         return ResponseEntity.ok(orderService.addMenuItemToOrder(id, dto.getMenuItemId(), dto.getQuantity()));
     }
@@ -39,17 +39,17 @@ public class OrderController {
         return new ResponseEntity<>(orderService.removeMenuItemFromOrder(id, itemId), HttpStatus.NO_CONTENT);
     }
 
-    @PutMapping(" /{id}/discount/{amount}")
+    @PutMapping("/{id}/discount/{amount}")
     public ResponseEntity<OrdersResponseDTO> applyDiscount(@PathVariable Integer id, @PathVariable Integer amount) {
         return ResponseEntity.ok(orderService.applyDiscount(id, amount));
     }
 
-    @PutMapping(" /{id}/confirm")
+    @PutMapping("/{id}/confirm")
     public ResponseEntity<OrdersResponseDTO> confirmOrder(@PathVariable Integer id) {
         return ResponseEntity.ok(orderService.updateOrderStatus(id, "COMPLETED"));
     }
 
-    @PutMapping(" /{id}/status/{status}")
+    @PutMapping("/{id}/status/{status}")
     public ResponseEntity<OrdersResponseDTO> updateStatus(@PathVariable Integer id, @PathVariable String status) {
         return ResponseEntity.ok(orderService.updateOrderStatus(id, status));
     }
@@ -69,7 +69,7 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getRestaurantOrders(restaurantId, status));
     }
 
-    @PostMapping(" /corporate ")
+    @PostMapping("/corporate")
     public ResponseEntity<CorporateOrderResponseDTO> createCorporateOrder(@Valid @RequestBody CorporateOrderRequestDTO dto) {
         return new ResponseEntity<>(orderService.placeCorporateOrder(dto), HttpStatus.CREATED);
     }

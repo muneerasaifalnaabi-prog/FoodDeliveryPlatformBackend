@@ -7,10 +7,7 @@ import com.fooddelivery.demo.Entities.RestaurantOwner;
 import com.fooddelivery.demo.Exceptions.DuplicateResourceException;
 import com.fooddelivery.demo.Exceptions.InvalidOrderStateException;
 import com.fooddelivery.demo.Exceptions.ResourceNotFoundException;
-import com.fooddelivery.demo.Repositories.ComboMealRepository;
-import com.fooddelivery.demo.Repositories.MenuItemRepository;
-import com.fooddelivery.demo.Repositories.RestaurantOwnerRepository;
-import com.fooddelivery.demo.Repositories.RestaurantRepository;
+import com.fooddelivery.demo.Repositories.*;
 import com.fooddelivery.demo.dto.RequestDTO.ComboMealRequestDTO;
 import com.fooddelivery.demo.dto.RequestDTO.MenuItemRequestDTO;
 import com.fooddelivery.demo.dto.RequestDTO.RestaurantRequestDTO;
@@ -18,6 +15,7 @@ import com.fooddelivery.demo.dto.ResponseDTO.ComboMealResponseDTO;
 import com.fooddelivery.demo.dto.ResponseDTO.MenuItemResponseDTO;
 import com.fooddelivery.demo.dto.ResponseDTO.RestaurantResponseDTO;
 import jakarta.validation.Valid;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +34,8 @@ public class RestaurantService {
     private MenuItemRepository menuItemRepository;
     @Autowired
     private ComboMealRepository comboMealRepository;
+    @Autowired
+    private OrdersRepository ordersRepository;
 
     public RestaurantResponseDTO createRestaurant(RestaurantRequestDTO dto, Integer ownerId) {
 
@@ -146,6 +146,8 @@ public class RestaurantService {
         return MenuItemResponseDTO.fromEntity(menuItemRepository.save(item));
     }
 
+
+
     /*public ComboMealResponseDTO createNewComboMeal(Integer restaurantId, ComboMealRequestDTO dto) {
         Restaurant restaurant = restaurantRepository.findRestaurantById(restaurantId).orElseThrow(() -> ResourceNotFoundException.notFound("Restaurant", restaurantId));
         ComboMeal combo = dto.toEntity();
@@ -169,6 +171,7 @@ public class RestaurantService {
     }
 
      */
+
 }
 
 

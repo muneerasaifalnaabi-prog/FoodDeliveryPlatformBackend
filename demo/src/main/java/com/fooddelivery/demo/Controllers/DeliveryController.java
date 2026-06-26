@@ -27,7 +27,7 @@ public class DeliveryController {
     public ResponseEntity<DeliveryResponseDTO> getDeliveryById( @PathVariable Integer id ) {
         return ResponseEntity.ok( deliveryService.getDeliveryById(id));
     }
-    @PutMapping(" /{id}/pickup")
+    @PutMapping("/{id}/pickup")
     public ResponseEntity<DeliveryResponseDTO> pickupDelivery(@PathVariable Integer id) {
         return ResponseEntity.ok(deliveryService.markDeliveryPickedUp(id));
     }
@@ -35,6 +35,7 @@ public class DeliveryController {
     public ResponseEntity<DeliveryResponseDTO> markDeliveryDelivered( @PathVariable Integer id ) {
         return ResponseEntity.ok( deliveryService.markDeliveryDelivered( id ) );
     }
+    @GetMapping("/status/{status}")
     public ResponseEntity<List<DeliveryResponseDTO>> getDeliveriesByStatus(@PathVariable String status ) {
         return ResponseEntity.ok( deliveryService.getDeliveriesByStatus(status));
     }

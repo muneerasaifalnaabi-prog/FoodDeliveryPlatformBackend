@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("(/api/reviews")
+@RequestMapping("/api/reviews")
 public class ReviewController {
     @Autowired
     private ReviewService reviewService;
@@ -27,12 +27,12 @@ public class ReviewController {
         return new ResponseEntity<>(reviewService.leaveDriverReview(customerId, driverId, dto.getRating(), dto.getComment()), HttpStatus.CREATED);
     }
 
-    @GetMapping("/T /driver/{driverId}")
+    @GetMapping("/driver/{driverId}")
     public ResponseEntity<List<ReviewResponseDTO>> getDriverReviews(@PathVariable Integer driverId) {
         return ResponseEntity.ok(reviewService.getDriverReviews(driverId));
     }
 
-    @DeleteMapping(" /{reviewId}")
+    @DeleteMapping("/{reviewId}")
     public ResponseEntity<String> deleteReview(@PathVariable Integer reviewId) {
         return new ResponseEntity<>(reviewService.deleteReview(reviewId), HttpStatus.NO_CONTENT);
     }

@@ -36,24 +36,24 @@ public class RestaurantController {
         return ResponseEntity.ok(restaurantService.getRestaurantById(id));
     }
 
-    @GetMapping(" /cuisine/{cuisine}")
+    @GetMapping("/cuisine/{cuisine}")
     public ResponseEntity<List<RestaurantResponseDTO>> getRestaurantByCuisine(@PathVariable String cuisine) {
         return ResponseEntity.ok(restaurantService.getRestaurantsByCuisine(cuisine));
     }
 
-    @PutMapping(" /{id}/toggle-orders")
+    @PutMapping("/{id}/toggle-orders")
     public ResponseEntity<List<RestaurantResponseDTO>> toggleOrders(@PathVariable Integer id, @RequestParam Boolean accepting) {
         return ResponseEntity.ok((List<RestaurantResponseDTO>) restaurantService.toggleAcceptingOrders(id, accepting));
 
     }
 
-    @PutMapping(" /{id}/fee/{newFee}")
+    @PutMapping("/{id}/fee/{newFee}")
     public ResponseEntity<RestaurantResponseDTO> updateDeliveryFee(@PathVariable Integer id, @PathVariable Double newFee) {
         return ResponseEntity.ok(restaurantService.updateDeliveryFee(id, newFee));
     }
 
     //....check  this <added list in getMenuForRestaurant !!
-    @GetMapping(" /{id}/menu")
+    @GetMapping("/{id}/menu")
     public ResponseEntity<List<MenuItemResponseDTO>> getRestaurantMenu(@PathVariable Integer id) {
         return ResponseEntity.ok(restaurantService.getMenuForRestaurant(id));
     }
@@ -68,7 +68,7 @@ public class RestaurantController {
         return new ResponseEntity<>(restaurantService.addNewMenuItem(id,dto), HttpStatus.CREATED);
     }
 
-    @PutMapping(" /menu/{itemId}/")
+    @PutMapping("/menu/{itemId}/")
     public ResponseEntity<MenuItemResponseDTO> updateMenuItemAvailability(@PathVariable Integer itemId, @RequestParam Boolean status) {
         return new ResponseEntity<>(restaurantService.updateMenuItemAvailability(itemId,status), HttpStatus.NOT_FOUND);
     }
