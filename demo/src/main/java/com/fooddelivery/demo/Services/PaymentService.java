@@ -8,9 +8,16 @@ import com.fooddelivery.demo.Repositories.OrdersRepository;
 import com.fooddelivery.demo.Repositories.PaymentRepository;
 import com.fooddelivery.demo.dto.ResponseDTO.PaymentResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Service
 public class PaymentService {
@@ -61,6 +68,18 @@ public class PaymentService {
         Orders orders = ordersRepository.findById(orderId).orElseThrow(() -> ResourceNotFoundException.notFound( "Order", orderId ) );
         Payment payment = paymentRepository.findPaymentByOrderId(orders.getId()).orElseThrow(() -> ResourceNotFoundException.notFound( "Payment", orders.getId() ) );
         return PaymentResponseDTO.fromEntity(payment);
+    }
+    public Page<PaymentResponseDTO> getPayments(String method, String status, Date from, Date to, int page, int size ) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Payment> payments = paymentRepository .filterPayments( method, status, from, to, pageable );
+        List<PaymentResponseDTO> response = new ArrayList<>();
+        for (Payment payment : payments.getContent()) {
+            response.add( PaymentResponseDTO .fromEntity(payment) );
+        }
+        return new PageImpl<>( response, pageable, payments.getTotalElements() );
+    }
+    public List<Object[]> getPaymentAnalyticsByMethod() {
+        return paymentRepository .getPaymentAnalyticsByMethod();
     }
 
 

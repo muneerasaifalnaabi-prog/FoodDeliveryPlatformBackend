@@ -6,9 +6,13 @@ import com.fooddelivery.demo.dto.RequestDTO.PaymentRequestDTO;
 import com.fooddelivery.demo.dto.ResponseDTO.PaymentResponseDTO;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Date;
+import java.util.List;
 
 @RestController
 @RequestMapping("api/payments")
@@ -32,8 +36,15 @@ public class PaymentController {
     }
     @GetMapping("/order/{orderId}")
     public ResponseEntity<PaymentResponseDTO> getPaymentByOrderId( @PathVariable Integer orderId ) {
-        return ResponseEntity.ok( paymentService.getPaymentByOrderId( orderId ) ); }
-
+        return ResponseEntity.ok( paymentService.getPaymentByOrderId( orderId ) );
+    }
+    @GetMapping("/") public
+    ResponseEntity<Page<PaymentResponseDTO>> getPayments(@RequestParam String method, @RequestParam String status, @RequestParam Date from, @RequestParam Date to, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size ) {
+        return ResponseEntity.ok( paymentService.getPayments( method, status, from, to, page, size ) );
+    }
+    public ResponseEntity<List<Object[]>> getPaymentAnalyticsByMethod() {
+        return ResponseEntity.ok( paymentService.getPaymentAnalyticsByMethod() );
+    }
 
 
 

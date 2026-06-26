@@ -18,10 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class DeliveryService {
@@ -187,26 +184,29 @@ public class DeliveryService {
         List<Delivery> deliveries = deliveryRepository.findByStatus(status);
         return DeliveryResponseDTO.fromEntity(deliveries);
     }
-    public List<DeliveryDriverResponseDTO> getNearbyDrivers( double lat, double lng, double radiusKm ) { List<DeliveryDriver> drivers = deliveryDriverRepository .findOnlineDrivers(); List<DeliveryDriverResponseDTO> response = new ArrayList<>(); for (DeliveryDriver driver : drivers) {
-        double distance = HelperUtils.calculateDistance( lat, lng, driver.getCurrentLat(), driver.getCurrentLng() );
-        if (distance <= radiusKm) {
-            response.add( DeliveryDriverResponseDTO .fromEntity(driver) );
+
+    public List<DeliveryDriverResponseDTO> getNearbyDrivers(double lat, double lng, double radiusKm) {
+        List<DeliveryDriver> drivers = deliveryDriverRepository.findOnlineDrivers();
+        List<DeliveryDriverResponseDTO> response = new ArrayList<>();
+        for (DeliveryDriver driver : drivers) {
+            double distance = HelperUtils.calculateDistance(lat, lng, driver.getCurrentLat(), driver.getCurrentLng());
+            if (distance <= radiusKm) {
+                response.add(DeliveryDriverResponseDTO.fromEntity(driver));
+            }
         }
+        return response;
     }
-    return response;
-    }
-    public Map<String, Object> getDriverPerformance(Integer driverId ) {
-        deliveryDriverRepository .findDriverById(driverId) .orElseThrow(() -> ResourceNotFoundException.notFound( "Driver", driverId ) );
-        Integer completedDeliveries = deliveryRepository.countCompletedDeliveries(driverId);
-        Double averageDeliveryTime = deliveryRepository .getAverageDeliveryTime( driverId );
-        Double averageRating = reviewRepository .getDriverAverageRating( driverId );
+
+    public Map<String, Object> getDriverPerformance(Integer driverId) {
+        deliveryDriverRepository.findDriverById(driverId).orElseThrow(() -> ResourceNotFoundException.notFound("Driver", driverId));
+        Double completedDeliveries = deliveryRepository.countCompletedDeliveries(driverId);
+        Double averageDeliveryTime = deliveryRepository.getAverageDeliveryTime(driverId);
+        Double averageRating = reviewRepository.getDriverAverageRating(driverId);
         Map<String, Object> performance = new HashMap<>();
-        performance.put( "completedDeliveries", completedDeliveries );
-        performance.put( "averageDeliveryTimeMinutes", averageDeliveryTime);
-        performance.put( "averageRating", averageRating );
+        performance.put("completedDeliveries", completedDeliveries);
+        performance.put("averageDeliveryTimeMinutes", averageDeliveryTime);
+        performance.put("averageRating", averageRating);
         return performance;
     }
-
-
-
 }
+
