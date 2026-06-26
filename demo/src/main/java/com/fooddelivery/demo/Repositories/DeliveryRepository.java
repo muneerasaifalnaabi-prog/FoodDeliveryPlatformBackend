@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,6 +29,9 @@ public interface DeliveryRepository extends JpaRepository<Delivery, Integer> {
 
     @Query(value = " SELECT AVG( TIMESTAMPDIFF( MINUTE, d.picked_up_at, d.delivered_at ) ) FROM delivery d WHERE d.driver_id = :driverId AND d.status = 'DELIVERED' AND d.is_active = true ", nativeQuery = true)
     Double getAverageDeliveryTime( @Param("driverId") Integer driverId );
+
+    @Query(" SELECT SUM(o.deliveryFee) FROM Delivery d JOIN d.orders o WHERE d.deliveryDriver.id = :driverId AND d.status = 'DELIVERED' AND d.deliveredAt BETWEEN :from AND :to AND d.isActive = true ")
+    Double getDriverEarnings(@Param("driverId") Integer driverId, @Param("from") Date from, @Param("to") Date to );
 
 
 }

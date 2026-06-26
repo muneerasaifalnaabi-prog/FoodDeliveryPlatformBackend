@@ -36,4 +36,5 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, Integer>
 
     @Query("SELECT r FROM Restaurant r WHERE r.isActive = true ")
     List<Restaurant> findAllActiveRestaurants();
+
 }

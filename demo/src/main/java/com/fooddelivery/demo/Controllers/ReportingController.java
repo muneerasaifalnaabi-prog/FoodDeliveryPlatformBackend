@@ -27,8 +27,8 @@ public class ReportingController {
     private ReportingService reportingService;
 
     @GetMapping("/revenue/restaurant/{restaurantId}")
-    public ResponseEntity<Double> getRestaurantRevenue(@PathVariable Integer restaurantId, @RequestParam Data data) {
-        return ResponseEntity.ok(reportingService.getRestaurantRevenueByDate(restaurantId,data));
+    public ResponseEntity<Double> getRestaurantRevenueByDate(@PathVariable Integer restaurantId, @RequestParam Date date) {
+        return ResponseEntity.ok(reportingService.getRestaurantRevenueByDate(restaurantId,date));
     }
     @GetMapping("/orders/count/restaurant/{restaurantId}")
     public ResponseEntity<Integer> countRestaurantOrders(@PathVariable Integer restaurantId) {
@@ -45,6 +45,22 @@ public class ReportingController {
     }
     @GetMapping("/platform/daily-summary")
     public ResponseEntity<Map<String, Object>> getPlatformDailySummary(@RequestParam Date date ) {
-        return ResponseEntity.ok( reportingService.getPlatformDailySummary(date) ); }
+        return ResponseEntity.ok( reportingService.getPlatformDailySummary(date) );
+    }
+    @GetMapping("/revenue/restaurant/{restaurantId}/range")
+    public ResponseEntity<Double> getRestaurantRevenueBetweenDates( @PathVariable Integer restaurantId, @RequestParam Date from, @RequestParam Date to ) {
+        return ResponseEntity.ok( restaurantService .getRestaurantRevenueBetweenDates( restaurantId, from, to ) );
+    }
+    @GetMapping("/drivers/{driverId}/earnings")
+    public ResponseEntity<Double> getDriverEarnings( @PathVariable Integer driverId, @RequestParam Date from, @RequestParam Date to ) {
+        return ResponseEntity.ok( deliveryService.getDriverEarnings( driverId, from, to ) );
+    }
+    @GetMapping("/orders/cancellation-rate")
+    public ResponseEntity<Double> getCancellationRate( @RequestParam Date from, @RequestParam Date to ) {
+        return ResponseEntity.ok( orderService.getCancellationRate( from, to ) );
+    }
+    @GetMapping("/platform/busiest-hours") public ResponseEntity<List<Object[]>> getBusiestHours() {
+        return ResponseEntity.ok( orderService.getBusiestHours() );
+    }
 
 }

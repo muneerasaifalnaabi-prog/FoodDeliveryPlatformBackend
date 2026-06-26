@@ -45,7 +45,7 @@ public interface OrdersRepository extends JpaRepository<Orders, Integer> {
     List<Orders> findOrdersByRestaurantAndStatus(@Param("restaurantId") Integer restaurantId, @Param("status") String status);
 
     @Query(" SELECT SUM(o.totalAmount) FROM Orders o WHERE o.restaurant.id = :restaurantId AND DATE(o.orderDate) = :date AND o.status = 'DELIVERED' AND o.isActive = true ")
-    Double getRestaurantRevenueByDate(@Param("restaurantId") Integer restaurantId, Data data);
+    Double getRestaurantRevenueByDate(@Param("restaurantId") Integer restaurantId, Date date);
 
     @Query(" SELECT COUNT(o) FROM Orders o WHERE o.restaurant.id = :restaurantId AND o.isActive = true ")
     Integer countRestaurantOrders(@Param("restaurantId") Integer restaurantId);
@@ -61,5 +61,17 @@ public interface OrdersRepository extends JpaRepository<Orders, Integer> {
 
     @Query("SELECT SUM(o.totalAmount) FROM Orders o WHERE o.restaurant.id = :restaurantId AND o.status = 'DELIVERED'AND o.isActive = true")
     Double getRestaurantTotalRevenue(@Param("restaurantId") Integer restaurantId);
+
+    @Query(" SELECT SUM(o.totalAmount) FROM Orders o WHERE o.restaurant.id = :restaurantId AND o.status = 'DELIVERED' AND o.orderDate BETWEEN :from AND :to AND o.isActive = true ")
+ Double getRestaurantRevenueBetweenDates( @Param("restaurantId") Integer restaurantId, @Param("from") Date from, @Param("to") Date to );
+
+    @Query(" SELECT COUNT(o) FROM Orders o WHERE o.status = 'CANCELLED' AND o.orderDate BETWEEN :from AND :to AND o.isActive = true ")
+    Integer countCancelledOrders( @Param("from") Date from, @Param("to") Date to );
+
+    @Query(" SELECT COUNT(o) FROM Orders o WHERE o.status = 'DELIVERED' AND o.orderDate BETWEEN :from AND :to AND o.isActive = true ")
+    Integer countCompletedOrdersBetweenDates( @Param("from") Date from, @Param("to") Date to );
+
+    @Query(value = " SELECT HOUR(o.order_date) AS orderHour, COUNT(*) AS totalOrders FROM orders o WHERE o.is_active = true GROUP BY HOUR(o.order_date) ORDER BY totalOrders DESC ", nativeQuery = true)
+    List<Object[]> getBusiestHours();
 
 }

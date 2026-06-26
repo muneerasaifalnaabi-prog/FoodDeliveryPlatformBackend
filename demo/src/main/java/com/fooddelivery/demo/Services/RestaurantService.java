@@ -20,10 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class RestaurantService {
@@ -208,6 +205,10 @@ public class RestaurantService {
             response.add( MenuItemResponseDTO .fromEntity(menuItem) );
         }
         return response;
+    }
+    public Double getRestaurantRevenueBetweenDates( Integer restaurantId, Date from, Date to ) {
+        Double revenue = ordersRepository.getRestaurantRevenueBetweenDates( restaurantId, from, to );
+        return revenue != null ? revenue : 0.0;
     }
 
 }

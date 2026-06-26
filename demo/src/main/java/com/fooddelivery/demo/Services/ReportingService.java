@@ -13,6 +13,8 @@ import com.fooddelivery.demo.dto.ResponseDTO.CustomerResponseDTO;
 import com.fooddelivery.demo.dto.ResponseDTO.DeliveryDriverResponseDTO;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -30,19 +32,21 @@ public class ReportingService {
     private DeliveryDriverRepository deliveryDriverRepository;
 
 
-    public Double getRestaurantRevenueByDate(Integer restaurantId,Data data) {
-        Restaurant restaurant = restaurantRepository.findRestaurantById(restaurantId) .orElseThrow(() -> ResourceNotFoundException.notFound( "Restaurant", restaurantId ) );
+    public Double getRestaurantRevenueByDate(Integer restaurantId, Date date) {
+        Restaurant restaurant = restaurantRepository.findRestaurantById(restaurantId).orElseThrow(() -> ResourceNotFoundException.notFound("Restaurant", restaurantId));
 
-        Double revenue = ordersRepository.getRestaurantRevenueByDate(restaurant.getId(),data);
-        return revenue != null ? revenue :0.0;
+        Double revenue = ordersRepository.getRestaurantRevenueByDate(restaurant.getId(), date);
+        return revenue != null ? revenue : 0.0;
     }
+
     public Integer countRestaurantOrders(Integer restaurantId) {
-        Restaurant restaurant = restaurantRepository .findRestaurantById(restaurantId) .orElseThrow(() -> ResourceNotFoundException.notFound( "Restaurant", restaurantId ) );
-        Integer totalOrder=ordersRepository.countRestaurantOrders(restaurant.getId());
+        Restaurant restaurant = restaurantRepository.findRestaurantById(restaurantId).orElseThrow(() -> ResourceNotFoundException.notFound("Restaurant", restaurantId));
+        Integer totalOrder = ordersRepository.countRestaurantOrders(restaurant.getId());
         return totalOrder;
     }
-    public List<CustomerResponseDTO> getTop10LoyaltyCustomers(){
-        List<Customer> customers = customerRepository .findTopLoyaltyCustomers();
+
+    public List<CustomerResponseDTO> getTop10LoyaltyCustomers() {
+        List<Customer> customers = customerRepository.findTopLoyaltyCustomers();
 
         List<CustomerResponseDTO> customerResponseDTOS = new ArrayList<>();
         for (Customer customer : customers) {
@@ -50,6 +54,8 @@ public class ReportingService {
         }
         return customerResponseDTOS;
     }
+
+    /*
     public List<DeliveryDriverResponseDTO> getTop10DriverLeaderboard(){
         List<DeliveryDriver> drivers = deliveryDriverRepository.getTop10DriverLeaderboard();
         List<DeliveryDriverResponseDTO> deliveryDriverResponseDTOS = new ArrayList<>();
@@ -58,18 +64,32 @@ public class ReportingService {
         }
         return deliveryDriverResponseDTOS;
     }
-    public Map<String, Object> getPlatformDailySummary(Date date ) {
-        Integer totalOrders=ordersRepository.countDailyOrders();
-        BigDecimal deliveryFees=ordersRepository.getPlatformDailySummary();
 
-        Map<String,Object> map = new HashMap<>();
-        map.put("date",date);
-        map.put("totalOrders",totalOrders);
-        map.put("deliveryFees",deliveryFees);
+     */
+    public List<DeliveryDriverResponseDTO> getTop10DriverLeaderboard() {
+        Pageable pageable = PageRequest.of(0, 10);
+        List<DeliveryDriver> drivers = deliveryDriverRepository.getTop10DriverLeaderboard(pageable);
+
+        List<DeliveryDriverResponseDTO> response = new ArrayList<>();
+        for (DeliveryDriver driver : drivers) {
+            response.add(DeliveryDriverResponseDTO.fromEntity(driver));
+        }
+
+        return response;
+    }
+
+    public Map<String, Object> getPlatformDailySummary(Date date) {
+        Integer totalOrders = ordersRepository.countDailyOrders();
+        BigDecimal deliveryFees = ordersRepository.getPlatformDailySummary();
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("date", date);
+        map.put("totalOrders", totalOrders);
+        map.put("deliveryFees", deliveryFees);
         return map;
 
     }
 
-    }
+}
 
 

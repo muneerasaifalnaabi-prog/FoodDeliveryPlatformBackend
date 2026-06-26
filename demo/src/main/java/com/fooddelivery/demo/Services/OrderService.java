@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -372,6 +373,23 @@ public class OrderService {
         List<Orders> orders = ordersRepository.findOrdersByRestaurantAndStatus(restaurant.getId(), status);
         return OrdersResponseDTO.fromEntity(orders);
     }
+    public Double getCancellationRate( Date from, Date to ) {
+        Integer cancelledOrders = ordersRepository.countCancelledOrders( from, to );
+        Integer completedOrders = ordersRepository .countCompletedOrdersBetweenDates( from, to );
+        Integer total = cancelledOrders + completedOrders;
+        if (total == 0) {
+            return 0.0;
+        }
+        return (cancelledOrders * 100.0) / total;
+    }
+
+    public List<Object[]> getBusiestHours() {
+        return ordersRepository .getBusiestHours();
+    }
+
+
+
+
 
 
 }
