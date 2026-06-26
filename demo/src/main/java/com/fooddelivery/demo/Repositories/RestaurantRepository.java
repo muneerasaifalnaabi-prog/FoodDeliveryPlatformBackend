@@ -33,4 +33,7 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, Integer>
 
     @Query(" SELECT c FROM ComboMeal c WHERE c.restaurant.id = :restaurantId AND c.isActive = true ")
     List<ComboMeal> findCombosByRestaurantId(@Param("restaurantId") Integer restaurantId );
+
+    @Query("SELECT r FROM Restaurant r WHERE r.isActive = true ")
+    List<Restaurant> findAllActiveRestaurants();
 }

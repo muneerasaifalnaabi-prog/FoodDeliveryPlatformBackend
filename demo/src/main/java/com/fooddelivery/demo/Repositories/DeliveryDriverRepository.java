@@ -10,19 +10,22 @@ import java.util.Optional;
 
 public interface DeliveryDriverRepository extends JpaRepository<DeliveryDriver, Integer> {
     @Query("SELECT d FROM DeliveryDriver d WHERE d.id = :driverId AND d.isActive = true ")
-    Optional<DeliveryDriver> findDriverById(@Param("driverId") Integer driverId );
+    Optional<DeliveryDriver> findDriverById(@Param("driverId") Integer driverId);
 
     @Query(" SELECT d FROM DeliveryDriver d WHERE d.isOnline = true AND d.isActive = true ")
     Optional<DeliveryDriver> findFirstAvailableOnlineDriver();
 
     @Query(" SELECT d FROM DeliveryDriver d WHERE d.email = :email AND d.isActive = true ")
-    Optional<DeliveryDriver> findDriverByEmail( @Param("email") String email );
+    Optional<DeliveryDriver> findDriverByEmail(@Param("email") String email);
 
     @Query(" SELECT d FROM DeliveryDriver d WHERE d.isActive = true ")
     List<DeliveryDriver> findAllActiveDrivers();
 
     @Query(" SELECT d FROM DeliveryDriver d WHERE d.isOnline = true AND d.isActive = true ")
     List<DeliveryDriver> findOnlineDrivers();
+
+    @Query(" SELECT d FROM delivery_driver d JOIN delivery dl ON d.id = dl.driver_id WHERE d.is_active = true AND dl.is_active = true AND dl.status = 'DELIVERED' GROUP BY d.id ORDER BY COUNT(dl.id) DESC LIMIT 10 ")
+    List<DeliveryDriver> getTop10DriverLeaderboard();
 
 
 }

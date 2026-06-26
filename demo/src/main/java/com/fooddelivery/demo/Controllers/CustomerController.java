@@ -8,6 +8,7 @@ import com.fooddelivery.demo.dto.ResponseDTO.CustomerResponseDTO;
 import com.fooddelivery.demo.dto.ResponseDTO.OrdersResponseDTO;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -79,5 +80,7 @@ public class CustomerController {
     public ResponseEntity<List<OrdersResponseDTO>> getCustomerOrders(@PathVariable Integer id) {
         return ResponseEntity.ok(customerService.getCustomerOrders(id));
     }
-
+    @GetMapping("/search")
+    public ResponseEntity<Page<CustomerResponseDTO>> searchCustomers(@RequestParam String name, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size ) {
+        return ResponseEntity.ok( customerService.searchCustomersByName( name,page,size) ); }
 }

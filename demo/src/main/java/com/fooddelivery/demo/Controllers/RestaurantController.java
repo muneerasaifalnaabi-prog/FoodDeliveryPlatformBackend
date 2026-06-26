@@ -73,16 +73,29 @@ public class RestaurantController {
         return new ResponseEntity<>(restaurantService.updateMenuItemAvailability(itemId,status), HttpStatus.NOT_FOUND);
     }
 
-    /*@PostMapping("/{id}/combos")
+    @PostMapping("/{id}/combos")
     public ResponseEntity<ComboMealResponseDTO> createNewComboMeal(@PathVariable Integer id, @Valid @RequestBody ComboMealRequestDTO dto) {
         return new ResponseEntity<>(restaurantService.createNewComboMeal(id,dto), HttpStatus.CREATED);
     }
-
-     */
 
     @PutMapping("/{id}/bulk-price-increase")
     public ResponseEntity<List<MenuItemResponseDTO>> bulkUpdateMenuItemPrices(@PathVariable Integer id, @RequestParam Double percentage) {
         return ResponseEntity.ok(restaurantService.bulkUpdateMenuItemPrices(id, percentage));
     }
+    /*
+    @GetMapping("/near")
+    public ResponseEntity<List<RestaurantResponseDTO>> getNearbyRestaurants( @RequestParam double lat, @RequestParam double lng, @RequestParam double radiusKm ) {
+        return ResponseEntity.ok( restaurantService.getNearbyRestaurants( lat, lng, radiusKm ) );
+    }
+
+     */
+    @GetMapping("/{id}/menu/top-sellers")
+    public ResponseEntity<List<MenuItemResponseDTO>> getTopSellingMenuItems( @PathVariable Integer id ) {
+        return ResponseEntity.ok( restaurantService.getTopSellingMenuItems(id) );
+    }
+    @GetMapping("/menu/search") public ResponseEntity<List<MenuItemResponseDTO>> searchMenuItems( @RequestParam String keyword, @RequestParam Integer minCalories, @RequestParam Integer maxCalories ) {
+        return ResponseEntity.ok( restaurantService.searchMenuItems( keyword, minCalories, maxCalories ) );
+    }
+
 
 }

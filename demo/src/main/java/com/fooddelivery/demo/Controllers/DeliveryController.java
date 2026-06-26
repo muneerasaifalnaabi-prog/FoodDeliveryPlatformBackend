@@ -1,6 +1,7 @@
 package com.fooddelivery.demo.Controllers;
 
 import com.fooddelivery.demo.Services.DeliveryService;
+import com.fooddelivery.demo.dto.ResponseDTO.DeliveryDriverResponseDTO;
 import com.fooddelivery.demo.dto.ResponseDTO.DeliveryResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/deliveries")
@@ -39,6 +41,13 @@ public class DeliveryController {
     public ResponseEntity<List<DeliveryResponseDTO>> getDeliveriesByStatus(@PathVariable String status ) {
         return ResponseEntity.ok( deliveryService.getDeliveriesByStatus(status));
     }
+    @GetMapping("/drivers/nearby") public ResponseEntity<List<DeliveryDriverResponseDTO>> getNearbyDrivers(@RequestParam double lat, @RequestParam double lng, @RequestParam double radiusKm ) {
+        return ResponseEntity.ok( deliveryService.getNearbyDrivers( lat, lng, radiusKm ) );
+    }
+    @GetMapping("/drivers/{driverId}/performance") public ResponseEntity<Map<String, Object>> getDriverPerformance(@PathVariable Integer driverId ) {
+        return ResponseEntity.ok( deliveryService.getDriverPerformance( driverId ) );
+    }
+
 
 
 

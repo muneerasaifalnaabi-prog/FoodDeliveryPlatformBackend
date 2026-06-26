@@ -1,7 +1,6 @@
 package com.fooddelivery.demo.Controllers;
 
-import com.fooddelivery.demo.Entities.DeliveryDriver;
-import com.fooddelivery.demo.Repositories.DeliveryDriverRepository;
+
 import com.fooddelivery.demo.Services.DeliveryService;
 import com.fooddelivery.demo.dto.RequestDTO.DeliveryDriverRequestDTO;
 import com.fooddelivery.demo.dto.ResponseDTO.DeliveryDriverResponseDTO;

@@ -1,5 +1,6 @@
 package com.fooddelivery.demo.dto;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -8,12 +9,14 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class CustomerPatchDTO {
-    @Size(min = 1,message = "First name must contain at least 2 characters")
-    private  String firstName;
+        private String firstName;
+        private String lastName;
+        @Email
+        private String email;
+        @Pattern(regexp = "^\\+?[0-9]{8,15}$")
+        private String phone;
+        private String street;
+        private String city;
+        private String building;
+    }
 
-    @Size(min = 1,message = "First name must contain at least 2 characters")
-    private  String lastName;
-
-    @Pattern( regexp = "^\\+?[0-9]{8,15}$", message = "Phone number must be between 8 and 15 digits" )
-    private String phoneNumber;
-}

@@ -11,6 +11,7 @@ import com.fooddelivery.demo.Repositories.CustomerAddressRepository;
 import com.fooddelivery.demo.Repositories.CustomerRepository;
 import com.fooddelivery.demo.Repositories.OrdersRepository;
 import com.fooddelivery.demo.Utils.HelperUtils;
+import com.fooddelivery.demo.dto.CustomerPatchDTO;
 import com.fooddelivery.demo.dto.RequestDTO.CustomerAddressRequestDTO;
 import com.fooddelivery.demo.dto.RequestDTO.CustomerRequestDTO;
 import com.fooddelivery.demo.dto.ResponseDTO.CustomerAddressResponseDTO;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -201,14 +203,37 @@ public class CustomerService {
     //=========**
     //Search and Pagination
     //========**
-    /*
+
+
     public Page<CustomerResponseDTO> searchCustomersByName(String name, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size); Page<Customer> customers = customerRepository.searchCustomersByName( name, pageable );
-        return
-
-     */
-
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Customer> customers = customerRepository.searchCustomersByName(name, pageable);
+        return customers.map(CustomerResponseDTO::fromEntity);
     }
+
+    public Page<OrdersResponseDTO> getCustomerOrders(Integer customerId, String status, Date from, Date to, int page, int size) {
+        customerRepository.findCustomerById(customerId).orElseThrow(() -> ResourceNotFoundException.notFound("Customer", customerId));
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Orders> orders = ordersRepository.findCustomerOrdersWithFilters(customerId, status, from, to, pageable);
+        return orders.map(OrdersResponseDTO::fromEntity);
+    }
+
+    public CustomerResponseDTO patchCustomer(Integer customerId, CustomerPatchDTO dto) {
+        Customer customer = customerRepository.findCustomerById(customerId).orElseThrow(() -> ResourceNotFoundException.notFound("Customer", customerId));
+        if (dto.getPhone() != null) {
+            customer.setPhone(dto.getPhone());
+        }
+        if (dto.getFirstName() != null) {
+            customer.setFirstName(dto.getFirstName());
+        }
+        if (dto.getLastName() != null) {
+            customer.setLastName(dto.getLastName());
+        }
+        customer.setUpdatedDate(LocalDateTime.now());
+        return CustomerResponseDTO.fromEntity(customerRepository.save(customer));
+    }
+}
+
 
 
 

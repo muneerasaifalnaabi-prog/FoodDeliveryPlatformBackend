@@ -33,6 +33,9 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
     @Query("SELECT c FROM Customer c WHERE c.isActive = true AND ( LOWER(c.firstName) LIKE LOWER(CONCAT('%', :name, '%')) OR LOWER(c.lastName) LIKE LOWER(CONCAT('%', :name, '%')) ) ")
     Page<Customer> searchCustomersByName(@Param("name") String name, Pageable pageable );
 
+    @Query(" SELECT c FROM Customer c WHERE c.isActive = true ORDER BY c.loyaltyPoints DESC ")
+    List<Customer> findTopLoyaltyCustomers();
+
 
 
 
