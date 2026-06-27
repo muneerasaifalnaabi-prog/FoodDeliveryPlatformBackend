@@ -42,6 +42,9 @@ public class CustomerService {
     @Autowired
     OrdersRepository ordersRepository;
 
+    //****========
+    //add new customer by first check if return empty,if customer already exist or not
+    //==========****
     public CustomerResponseDTO createCustomer(CustomerRequestDTO dto) {
         if (dto == null) {
             throw InvalidOrderStateException.invalidState("Customer data is required");
