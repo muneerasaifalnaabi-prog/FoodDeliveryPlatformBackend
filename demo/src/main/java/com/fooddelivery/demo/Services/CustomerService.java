@@ -64,9 +64,8 @@ public class CustomerService {
         customer.setCreatedDate(LocalDateTime.now());
         customer.setUpdatedDate(LocalDateTime.now());
         customer.setIsActive(true);
-        Customer savedCustomer = customerRepository.save(customer);
 
-        return CustomerResponseDTO.fromEntity(savedCustomer);
+        return CustomerResponseDTO.fromEntity(customerRepository.save(customer));
     }
 
     public CustomerResponseDTO createCustomer(CustomerRequestDTO dto, CustomerAddressRequestDTO custaddress) {
