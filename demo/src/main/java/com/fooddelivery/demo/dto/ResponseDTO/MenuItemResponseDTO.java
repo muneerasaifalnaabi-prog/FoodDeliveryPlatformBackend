@@ -1,6 +1,7 @@
 package com.fooddelivery.demo.dto.ResponseDTO;
 
 import com.fooddelivery.demo.Entities.MenuItem;
+import com.fooddelivery.demo.Utils.HelperUtils;
 import com.fooddelivery.demo.dto.SummaryDTO.RestaurantSummaryDTO;
 import lombok.Data;
 import lombok.NoArgsConstructor;

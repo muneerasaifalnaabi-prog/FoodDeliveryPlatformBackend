@@ -47,8 +47,8 @@ public class RestaurantController {
     }
 
     @PutMapping("/{id}/toggle-orders")
-    public ResponseEntity<RestaurantResponseDTO> toggleOrders( @PathVariable Integer id, @RequestParam Boolean accepting ) {
-        return ResponseEntity.ok( restaurantService .toggleAcceptingOrders( id, accepting ) );
+    public ResponseEntity<RestaurantResponseDTO> toggleOrders(@PathVariable Integer id, @RequestParam Boolean accepting) {
+        return ResponseEntity.ok(restaurantService.toggleAcceptingOrders(id, accepting));
     }
 
 
@@ -94,22 +94,19 @@ public class RestaurantController {
         return ResponseEntity.ok(restaurantService.getRestaurantAnalytics(id));
     }
 
-    /*
     @GetMapping("/near")
-    public ResponseEntity<List<RestaurantResponseDTO>> getNearbyRestaurants( @RequestParam double lat, @RequestParam double lng, @RequestParam double radiusKm ) {
-        return ResponseEntity.ok( restaurantService.getNearbyRestaurants( lat, lng, radiusKm ) );
+    public ResponseEntity<List<RestaurantResponseDTO>> getNearbyRestaurants(@RequestParam double lat, @RequestParam double lng, @RequestParam double radiusKm) {
+        return ResponseEntity.ok(restaurantService.getNearbyRestaurants(lat, lng, radiusKm));
     }
 
-     */
     @GetMapping("/{id}/menu/top-sellers")
     public ResponseEntity<List<MenuItemResponseDTO>> getTopSellingMenuItems(@PathVariable Integer id) {
         return ResponseEntity.ok(restaurantService.getTopSellingMenuItems(id));
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<List<RestaurantResponseDTO>>
-    searchRestaurants(@RequestParam String name, @RequestParam Integer page, @RequestParam Integer size) {
-        return ResponseEntity.ok(restaurantService.searchRestaurants(name, page, size));
+    @GetMapping("/menu/search")
+    public ResponseEntity<List<MenuItemResponseDTO>> searchMenuItems(@RequestParam String keyword, @RequestParam Integer minCalories, @RequestParam Integer maxCalories) {
+        return ResponseEntity.ok(restaurantService.searchMenuItems(keyword, minCalories, maxCalories));
     }
 
 

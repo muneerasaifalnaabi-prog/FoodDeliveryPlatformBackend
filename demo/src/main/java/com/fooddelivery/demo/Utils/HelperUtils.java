@@ -37,10 +37,10 @@ public class HelperUtils {
     public static double calculateTotal(double subtotal, double fee, double discount) {
         return subtotal + fee - discount;
     }
-    public static String formatCurrency(double amount) {
+    public static String formatCurrency(BigDecimal amount) {
         return String.format("%.2f OMR", amount);
     }
-    public static String formatCurrency(double amount, String currencyCode) {
+    public static String formatCurrency(BigDecimal amount, String currencyCode) {
         return String.format("%.2f %s", amount, currencyCode);
     }
     public static boolean isBusinessOpen(String openTime, String closeTime) {

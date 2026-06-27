@@ -245,9 +245,6 @@ public class RestaurantService {
         Double revenue = ordersRepository.getRestaurantRevenueBetweenDates(restaurantId, from, to);
         return revenue != null ? revenue : 0.0;
     }
-   // public Map<String, Object> getRestaurantAnalytics( Integer restaurantId ) {
-        //restaurantRepository .findRestaurantById(restaurantId) .orElseThrow(() -> ResourceNotFoundException.notFound( "Restaurant", restaurantId ) ); Double averageRating = reviewRepository .getRestaurantAverageRating( restaurantId ); Double totalRevenue = ordersRepository .getRestaurantTotalRevenue( restaurantId ); Long completedOrders = ordersRepository .countRestaurantOrders( restaurantId ); Map<String, Object> analytics = new HashMap<>(); analytics.put( "averageRating", averageRating != null ? averageRating : 0.0 ); analytics.put( "totalRevenue", totalRevenue != null ? totalRevenue : 0.0 ); analytics.put( "completedOrders", completedOrders != null ? completedOrders : 0L ); return analytics; }
-
     public List<RestaurantResponseDTO> searchRestaurants(String keyword, Integer page, Integer size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Restaurant> restaurants = restaurantRepository.searchRestaurantsByKeyword(keyword, pageable);
@@ -256,7 +253,17 @@ public class RestaurantService {
         for (Restaurant restaurant : restaurants.getContent()) {
             response.add(RestaurantResponseDTO.fromEntity(restaurant));
         }
-
+        return response;
+    }
+    public List<RestaurantResponseDTO> getNearbyRestaurants( double lat, double lng, double radiusKm ) {
+        List<Restaurant> restaurants = restaurantRepository.getAllRestaurant();
+        List<RestaurantResponseDTO> response = new ArrayList<>();
+        for (Restaurant restaurant : restaurants) {
+            double distance = HelperUtils.calculateDistance( lat, lng, restaurant.getLatitude(), restaurant.getLongitude() );
+            if (distance <= radiusKm) {
+                response.add( RestaurantResponseDTO.fromEntity( restaurant ) );
+            }
+        }
         return response;
     }
 
