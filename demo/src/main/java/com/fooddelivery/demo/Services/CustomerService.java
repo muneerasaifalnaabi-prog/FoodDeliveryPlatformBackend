@@ -158,7 +158,9 @@ public class CustomerService {
             return "NOT FOUND";
         }
     }
-
+    //****========
+    //get all active customer in this system
+    //==========****
     public List<CustomerResponseDTO> getAllCustomers() {
         if (customerRepository.findAllActiveCustomers().isEmpty()) {
             throw ResourceNotFoundException.notFound("Customer", customerRepository.findAll().size());
@@ -166,27 +168,35 @@ public class CustomerService {
         List<Customer> customers = customerRepository.findAllActiveCustomers();
         return CustomerResponseDTO.fromEntity(customers);
     }
-
+    //****========
+    //get customer by id
+    //==========****
     public CustomerResponseDTO getCustomerById(Integer customerId) {
         Customer customer = customerRepository.findCustomerById(customerId).orElseThrow(() -> ResourceNotFoundException.notFound("Customer", customerId));
         return CustomerResponseDTO.fromEntity(customer);
     }
-
+    //****========
+    //get customer by email
+    //==========****
     public CustomerResponseDTO getCustomerByEmail(String email) {
         Customer customer = customerRepository.findCustomerByEmail(email).orElseThrow(() -> new ResourceNotFoundException("Customer with email " + email + " was not found."));
         return CustomerResponseDTO.fromEntity(customer);
     }
-
+    //****========
+    //get all address for customer
+    //==========****
     public List<CustomerAddressResponseDTO> getCustomerAddresses(Integer customerId) {
         Customer customer = customerRepository.findCustomerById(customerId).orElseThrow(() -> ResourceNotFoundException.notFound("Customer", customerId));
         List<CustomerAddress> addresses = customerAddressRepository.findByCustomerId(customer.getId());
         return CustomerAddressResponseDTO.fromEntity(addresses);
 
     }
-
+    //****========
+    //deactivate the address
+    //==========****
     public String deleteAddress(Integer addressId) {
         CustomerAddress address = customerAddressRepository.findAddressById(addressId).orElseThrow(() -> ResourceNotFoundException.notFound("Customer Address", addressId));
-        if (address.getIsActive() == null || address.getIsActive()) {
+        if (address.getIsActive() == null) {
             address.setIsActive(false);
             address.setUpdatedDate(LocalDateTime.now());
             customerAddressRepository.save(address);
@@ -195,7 +205,9 @@ public class CustomerService {
             return "NOT FOUND";
         }
     }
-
+    //****========
+    //set default address
+    //==========****
     public CustomerAddressResponseDTO setDefaultAddress(Integer addressId) {
         CustomerAddress address = customerAddressRepository.findAddressById(addressId).orElseThrow(() -> ResourceNotFoundException.notFound("Customer Address", addressId));
         List<CustomerAddress> customerAddresses = customerAddressRepository.findByCustomerId(address.getCustomer().getId());
@@ -210,27 +222,26 @@ public class CustomerService {
         CustomerAddress updatedAddress = customerAddressRepository.save(address);
         return CustomerAddressResponseDTO.fromEntity(updatedAddress);
     }
-
-
     //=========**
     //Search and Pagination
     //========**
-
-
     public Page<CustomerResponseDTO> searchCustomersByName(String name, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Customer> customers = customerRepository.searchCustomersByName(name, pageable);
         return customers.map(CustomerResponseDTO::fromEntity);
     }
-
+    //****========
+    //get customer orders by status,date from to ,page and size
+    //==========****
     public Page<OrdersResponseDTO> getCustomerOrders(Integer customerId, String status, Date from, Date to, int page, int size) {
         customerRepository.findCustomerById(customerId).orElseThrow(() -> ResourceNotFoundException.notFound("Customer", customerId));
         Pageable pageable = PageRequest.of(page, size);
         Page<Orders> orders = ordersRepository.findCustomerOrdersWithFilters(customerId, status, from, to, pageable);
         return orders.map(OrdersResponseDTO::fromEntity);
     }
-
-
+    //****========
+    //patch customer if it needed to update some fields in profile
+    //==========****
     public CustomerResponseDTO patchCustomer(Integer customerId, CustomerPatchDTO dto) {
         Customer customer = customerRepository.findCustomerById(customerId).orElseThrow(() -> ResourceNotFoundException.notFound("Customer", customerId));
         if (dto.getFirstName() != null) {
@@ -239,17 +250,13 @@ public class CustomerService {
         if (dto.getLastName() != null) {
             customer.setLastName(dto.getLastName());
         }
-
         if (dto.getPhone() != null) {
             customer.setPhone(dto.getPhone());
         }
-
         if (dto.getEmail() != null) {
             customer.setEmail(dto.getEmail());
         }
-
         customer.setUpdatedDate(LocalDateTime.now());
-
         customerRepository.save(customer);
 
         CustomerResponseDTO response = new CustomerResponseDTO();

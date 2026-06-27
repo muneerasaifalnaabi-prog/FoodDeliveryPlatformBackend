@@ -75,7 +75,7 @@ public class CustomerController {
 
     @DeleteMapping("/addresses/{addressId}")
     public ResponseEntity<String> deleteAddress(@PathVariable Integer addressId) {
-        return new ResponseEntity<>(customerService.deleteAddress(addressId), HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(customerService.deleteAddress(addressId),HttpStatus.NO_CONTENT);
     }
 
     @GetMapping("/{id}/orders")
@@ -89,7 +89,7 @@ public class CustomerController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<CustomerResponseDTO> patchCustomer(@PathVariable Integer id, @RequestBody CustomerPatchDTO dto) {
+    public ResponseEntity<CustomerResponseDTO> patchCustomer(@PathVariable Integer id,@Valid @RequestBody CustomerPatchDTO dto) {
         return ResponseEntity.ok(customerService.patchCustomer(id, dto));
     }
 }

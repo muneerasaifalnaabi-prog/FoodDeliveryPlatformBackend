@@ -39,7 +39,9 @@ public class RestaurantService {
     private OrdersRepository ordersRepository;
     @Autowired
     private ReviewRepository reviewRepository;
-
+    //****========
+    //create new Restaurant
+    //==========****
     public RestaurantResponseDTO createRestaurant(RestaurantRequestDTO dto, Integer ownerId) {
 
         if (dto == null) {
@@ -56,13 +58,18 @@ public class RestaurantService {
 
         return RestaurantResponseDTO.fromEntity(restaurantRepository.save(restaurant));
     }
-
+    //****========
+    //change the status of accepting order
+    //==========****
     public RestaurantResponseDTO toggleAcceptingOrders( Integer restaurantId, Boolean status ) {
         Restaurant restaurant = restaurantRepository .findRestaurantById( restaurantId ) .orElseThrow(() -> ResourceNotFoundException.notFound( "Restaurant", restaurantId ) );
         restaurant.setAcceptingOrders( status );
         restaurant.setUpdatedDate( LocalDateTime.now() );
         return RestaurantResponseDTO .fromEntity( restaurantRepository.save( restaurant ) );
     }
+    //****========
+    //update delivery fee
+    //==========****
     public RestaurantResponseDTO updateDeliveryFee(Integer restaurantId, double newFee) {
         Restaurant restaurant = restaurantRepository.findRestaurantById(restaurantId).orElseThrow(() -> ResourceNotFoundException.notFound("Restaurant", restaurantId));
 
@@ -72,25 +79,33 @@ public class RestaurantService {
         return RestaurantResponseDTO.fromEntity(restaurantRepository.save(restaurant));
 
     }
-
+    //****========
+    //find restaurant by cuisine type
+    //==========****
     public List<RestaurantResponseDTO> getRestaurantsByCuisine(String cuisine) {
         List<Restaurant> restaurants = restaurantRepository.findByCuisineTypeIgnoreCase(cuisine);
 
         return RestaurantResponseDTO.fromEntity(restaurants);
     }
-
+    //****========
+    //find restaurant under delivery fee
+    //==========****
     public List<RestaurantResponseDTO> getRestaurantsUnderDeliveryFee(double maxFee) {
         List<Restaurant> restaurants = restaurantRepository.findByDeliveryFeeLessThanEqual(maxFee);
 
         return RestaurantResponseDTO.fromEntity(restaurants);
     }
-
+    //****========
+    //get menu item for restaurant
+    //==========****
     public List<MenuItemResponseDTO> getMenuForRestaurant(Integer restaurantId) {
         Restaurant restaurant = restaurantRepository.findRestaurantById(restaurantId).orElseThrow(() -> ResourceNotFoundException.notFound("Restaurant", restaurantId));
         List<MenuItem> menuItems = menuItemRepository.findByRestaurantIdAndIsAvailableTrue(restaurant.getId());
         return MenuItemResponseDTO.fromEntity(menuItems);
     }
-
+    //****========
+    //Increase or update Item price
+    //==========****
     public List<MenuItemResponseDTO> bulkUpdateMenuItemPrices(Integer restaurantId, double percentageIncrease) {
         Restaurant restaurant = restaurantRepository.findRestaurantById(restaurantId).orElseThrow(() -> ResourceNotFoundException.notFound("Restaurant", restaurantId));
         List<MenuItem> menuItems = menuItemRepository.findByRestaurantIdAndIsAvailableTrue(restaurant.getId());
@@ -105,11 +120,11 @@ public class RestaurantService {
         return MenuItemResponseDTO.fromEntity(menuItems);
 
     }
-
-
+    //****========
+    //get all restaurant
+    //==========****
     public List<RestaurantResponseDTO> getAllRestaurant() {
         List<Restaurant> restaurants = restaurantRepository.getAllRestaurant();
-
         List<RestaurantResponseDTO> response = new ArrayList<>();
         for (Restaurant restaurant : restaurants) {
             response.add(RestaurantResponseDTO.fromEntity(restaurant)
@@ -118,20 +133,26 @@ public class RestaurantService {
 
         return response;
     }
-
+    //****========
+    //Get restaurant by id
+    //==========****
     public RestaurantResponseDTO getRestaurantById(Integer restaurantId) {
         if (restaurantRepository.findRestaurantById(restaurantId).isPresent()) {
             return RestaurantResponseDTO.fromEntity(restaurantRepository.findRestaurantById(restaurantId).get());
         }
         throw ResourceNotFoundException.notFound("Restaurant", restaurantId);
     }
-
+    //****========
+    //get current combo meals of that restaurant
+    //==========****
     public List<ComboMealResponseDTO> getRestaurantCombos(Integer restaurantId) {
         Restaurant restaurant = restaurantRepository.findRestaurantById(restaurantId).orElseThrow(() -> ResourceNotFoundException.notFound("Restaurant", restaurantId));
         List<ComboMeal> comboMeals = comboMealRepository.findByRestaurantId(restaurantId);
-        return ComboMealResponseDTO.fromEntityList(comboMeals);
+        return ComboMealResponseDTO.fromEntity(comboMeals);
     }
-
+    //****========
+    //add new Menu item
+    //==========****
     public MenuItemResponseDTO addNewMenuItem(Integer restaurantId, MenuItemRequestDTO dto) {
         Restaurant restaurant = restaurantRepository.findRestaurantById(restaurantId).orElseThrow(() -> ResourceNotFoundException.notFound("Restaurant", restaurantId));
 
@@ -143,7 +164,9 @@ public class RestaurantService {
 
         return MenuItemResponseDTO.fromEntity(menuItemRepository.save(item));
     }
-
+    //****========
+    //update Menu item available or not
+    //==========****
     public MenuItemResponseDTO updateMenuItemAvailability(Integer itemId, boolean status) {
         MenuItem item = menuItemRepository.findMenuItemById(itemId).orElseThrow(() -> ResourceNotFoundException.notFound("Menu Item", itemId));
 
@@ -152,7 +175,9 @@ public class RestaurantService {
 
         return MenuItemResponseDTO.fromEntity(menuItemRepository.save(item));
     }
-
+    //****========
+    //create new combo meals
+    //==========****
     public ComboMealResponseDTO createNewComboMeal(Integer restaurantId, ComboMealRequestDTO dto) {
         Restaurant restaurant = restaurantRepository.findRestaurantById(restaurantId).orElseThrow(() -> ResourceNotFoundException.notFound("Restaurant", restaurantId));
 
@@ -223,10 +248,8 @@ public class RestaurantService {
    // public Map<String, Object> getRestaurantAnalytics( Integer restaurantId ) {
         //restaurantRepository .findRestaurantById(restaurantId) .orElseThrow(() -> ResourceNotFoundException.notFound( "Restaurant", restaurantId ) ); Double averageRating = reviewRepository .getRestaurantAverageRating( restaurantId ); Double totalRevenue = ordersRepository .getRestaurantTotalRevenue( restaurantId ); Long completedOrders = ordersRepository .countRestaurantOrders( restaurantId ); Map<String, Object> analytics = new HashMap<>(); analytics.put( "averageRating", averageRating != null ? averageRating : 0.0 ); analytics.put( "totalRevenue", totalRevenue != null ? totalRevenue : 0.0 ); analytics.put( "completedOrders", completedOrders != null ? completedOrders : 0L ); return analytics; }
 
-    public List<RestaurantResponseDTO>
-    searchRestaurants(String keyword, Integer page, Integer size) {
+    public List<RestaurantResponseDTO> searchRestaurants(String keyword, Integer page, Integer size) {
         Pageable pageable = PageRequest.of(page, size);
-
         Page<Restaurant> restaurants = restaurantRepository.searchRestaurantsByKeyword(keyword, pageable);
         List<RestaurantResponseDTO> response = new ArrayList<>();
 

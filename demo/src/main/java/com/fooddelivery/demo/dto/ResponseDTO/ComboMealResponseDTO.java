@@ -45,7 +45,7 @@ public class ComboMealResponseDTO {
         return dto;
     }
 
-    public static List<ComboMealResponseDTO> fromEntityList(List<ComboMeal> entities) {
+    public static List<ComboMealResponseDTO> fromEntity(List<ComboMeal> entities) {
         List<ComboMealResponseDTO> dtos = new ArrayList<>();
 
         for (ComboMeal entity : entities) {

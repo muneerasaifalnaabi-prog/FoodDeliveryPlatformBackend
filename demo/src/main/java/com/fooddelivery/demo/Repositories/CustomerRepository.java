@@ -32,6 +32,4 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
 
     @Query(" SELECT c FROM Customer c WHERE c.isActive = true ORDER BY c.loyaltyPoints DESC ")
     List<Customer> findTopLoyaltyCustomers(Pageable pageable);
-
-
 }

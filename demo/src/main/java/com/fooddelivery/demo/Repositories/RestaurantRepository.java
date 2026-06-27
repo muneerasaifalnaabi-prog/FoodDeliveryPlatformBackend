@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RestaurantRepository extends JpaRepository<Restaurant, Integer> {
-    @Query("SELECT r FROM Restaurant r WHERE LOWER(r.cuisineType) = LOWER(:cuisineType)AND r.isActive = true ")
+    @Query("SELECT r FROM Restaurant r WHERE LOWER(r.cuisineType) = LOWER(:cuisineType) AND r.isActive = true ")
     List<Restaurant> findByCuisineTypeIgnoreCase(@Param("cuisineType") String cuisineType);
 
     @Query(" SELECT r FROM Restaurant r WHERE r.acceptingOrders = true AND r.isActive = true")
@@ -26,19 +26,13 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, Integer>
     @Query("SELECT r FROM Restaurant r WHERE LOWER(r.name) LIKE LOWER(CONCAT('%', :keyword, '%'))AND r.isActive = true")
     Page<Restaurant> searchRestaurantsByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
-
     @Query("SELECT r FROM Restaurant r WHERE r.isActive = TRUE AND r.id = :restaurantId")
     Optional<Restaurant> findRestaurantById(@Param("restaurantId") Integer restaurantId);
 
     @Query("SELECT r FROM Restaurant r WHERE r.isActive = true")
     List<Restaurant> getAllRestaurant();
 
-
-
     @Query(" SELECT c FROM ComboMeal c WHERE c.restaurant.id = :restaurantId AND c.isActive = true ")
     List<ComboMeal> findCombosByRestaurantId(@Param("restaurantId") Integer restaurantId );
-
-    @Query("SELECT r FROM Restaurant r WHERE r.isActive = true ")
-    List<Restaurant> findAllActiveRestaurants();
 
 }
