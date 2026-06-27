@@ -1,17 +1,12 @@
 package com.fooddelivery.demo.dto.RequestDTO;
 
-import com.fooddelivery.demo.Entities.MenuItem;
+
 import com.fooddelivery.demo.Entities.OrderItem;
-import com.fooddelivery.demo.Entities.Orders;
-import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
