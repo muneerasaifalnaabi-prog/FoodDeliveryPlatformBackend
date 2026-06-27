@@ -37,6 +37,14 @@ public class RestaurantRequestDTO {
     private BigDecimal deliveryFee;
 
     private Boolean acceptingOrders;
+    //============add tow these fields to calcu  ===
+    /*@NotNull(message = "Latitude is required")
+    private Double latitude;
+
+    @NotNull(message = "Longitude is required")
+    private Double longitude;
+
+     */
 
     public Restaurant toEntity() {
         Restaurant restaurant = new Restaurant();
@@ -54,6 +62,11 @@ public class RestaurantRequestDTO {
         restaurant.setMinOrderAmount(minOrderAmount);
         restaurant.setDeliveryFee(deliveryFee);
         restaurant.setAcceptingOrders(acceptingOrders != null ? acceptingOrders : true);
+        /*
+        restaurant.setLatitude(latitude);
+        restaurant.setLongitude(longitude);
+
+         */
     }
 
 

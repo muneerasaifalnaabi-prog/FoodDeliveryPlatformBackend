@@ -50,11 +50,11 @@ public interface OrdersRepository extends JpaRepository<Orders, Integer> {
     @Query(" SELECT COUNT(o) FROM Orders o WHERE o.restaurant.id = :restaurantId AND o.isActive = true ")
     Integer countRestaurantOrders(@Param("restaurantId") Integer restaurantId);
 
-    @Query(" SELECT COUNT(o) FROM Orders o WHERE DATE(o.orderDate) = :date AND o.isActive = true ")
-    Integer countDailyOrders();
+    @Query("SELECT COUNT(o) FROM Orders o WHERE DATE(o.orderDate) = :date AND o.isActive = true")
+    Integer countDailyOrders(@Param("date") Date date);
 
-    @Query(" SELECT SUM(o.deliveryFee) FROM Orders o WHERE DATE(o.orderDate) = :date AND o.isActive = true ")
-    BigDecimal getPlatformDailySummary();
+    @Query("SELECT SUM(o.deliveryFee) FROM Orders o WHERE DATE(o.orderDate) = :date AND o.isActive = true")
+    BigDecimal getPlatformDailySummary(@Param("date") Date date);
 
     @Query("SELECT o FROM Orders o WHERE o.customer.id = :customerId AND o.status = :status AND o.orderDate BETWEEN :from AND :to AND o.isActive = true ")
     Page<Orders> findCustomerOrdersWithFilters(@Param("customerId") Integer customerId, @Param("status") String status, @Param("from") Date from, @Param("to") Date to, Pageable pageable);

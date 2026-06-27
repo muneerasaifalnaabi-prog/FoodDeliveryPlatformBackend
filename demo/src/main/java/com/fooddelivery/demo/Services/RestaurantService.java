@@ -255,6 +255,7 @@ public class RestaurantService {
         }
         return response;
     }
+    /*
     public List<RestaurantResponseDTO> getNearbyRestaurants( double lat, double lng, double radiusKm ) {
         List<Restaurant> restaurants = restaurantRepository.getAllRestaurant();
         List<RestaurantResponseDTO> response = new ArrayList<>();
@@ -266,6 +267,8 @@ public class RestaurantService {
         }
         return response;
     }
+
+     */
 
 
 

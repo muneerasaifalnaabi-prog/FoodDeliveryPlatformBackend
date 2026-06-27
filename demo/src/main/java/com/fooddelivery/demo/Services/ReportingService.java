@@ -70,8 +70,8 @@ public class ReportingService {
     }
 
     public Map<String, Object> getPlatformDailySummary(Date date) {
-        Integer totalOrders = ordersRepository.countDailyOrders();
-        BigDecimal deliveryFees = ordersRepository.getPlatformDailySummary();
+        Integer totalOrders = ordersRepository.countDailyOrders(date);
+        BigDecimal deliveryFees = ordersRepository.getPlatformDailySummary(date);
 
         Map<String, Object> map = new HashMap<>();
         map.put("date", date);

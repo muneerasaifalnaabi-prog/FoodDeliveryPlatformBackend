@@ -25,9 +25,11 @@ public class Restaurant extends BaseEntity {
     private BigDecimal deliveryFee;
     private Boolean acceptingOrders;
 
-    //add 2 these fields to calcu near restaurant..
+    /*add 2 these fields to calcu near restaurant..
     private Double latitude;
     private Double longitude;
+    
+     */
 
 
     @ManyToOne
