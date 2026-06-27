@@ -1,10 +1,7 @@
 package com.fooddelivery.demo.dto.RequestDTO;
 
 import com.fooddelivery.demo.Entities.MenuItem;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -29,7 +26,7 @@ public class MenuItemRequestDTO {
     private Boolean isVegetarian;
 
     @NotNull(message = "Calories are required")
-    @Min(value = 0, message = "Calories cannot be negative")
+    @PositiveOrZero(message = "Calories cannot be negative")
     private Integer calories;
 
     public MenuItem toEntity() {
@@ -39,7 +36,6 @@ public class MenuItemRequestDTO {
     }
 
     public void applyTo(MenuItem menuItem) {
-
         menuItem.setName(name);
         menuItem.setDescription(description);
         menuItem.setPrice(price);

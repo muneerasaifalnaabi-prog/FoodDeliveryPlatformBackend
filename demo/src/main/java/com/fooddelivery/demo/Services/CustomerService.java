@@ -46,7 +46,7 @@ public class CustomerService {
         if (dto == null) {
             throw InvalidOrderStateException.invalidState("Customer data is required");
         }
-        Optional<Customer> existCustomer = customerRepository.findByEmail(dto.getEmail());
+        Optional<Customer> existCustomer = customerRepository.findCustomerByEmail(dto.getEmail());
 
         if (existCustomer.isPresent()) {
             throw DuplicateResourceException.alreadyExists("Customer email", dto.getEmail());
@@ -67,7 +67,7 @@ public class CustomerService {
     }
 
     public CustomerResponseDTO createCustomer(CustomerRequestDTO dto, CustomerAddressRequestDTO custaddress) {
-        Optional<Customer> existCustomer = customerRepository.findByEmail(dto.getEmail());
+        Optional<Customer> existCustomer = customerRepository.findCustomerByEmail(dto.getEmail());
 
         if (existCustomer.isPresent()) {
             throw DuplicateResourceException.alreadyExists("Customer email", dto.getEmail());
@@ -161,7 +161,7 @@ public class CustomerService {
 
     public List<CustomerAddressResponseDTO> getCustomerAddresses(Integer customerId) {
         Customer customer = customerRepository.findCustomerById(customerId).orElseThrow(() -> ResourceNotFoundException.notFound("Customer", customerId));
-        List<CustomerAddress> addresses = customerAddressRepository.findAddressesByCustomerId(customer.getId());
+        List<CustomerAddress> addresses = customerAddressRepository.findByCustomerId(customer.getId());
         return CustomerAddressResponseDTO.fromEntity(addresses);
 
     }
@@ -180,7 +180,7 @@ public class CustomerService {
 
     public CustomerAddressResponseDTO setDefaultAddress(Integer addressId) {
         CustomerAddress address = customerAddressRepository.findAddressById(addressId).orElseThrow(() -> ResourceNotFoundException.notFound("Customer Address", addressId));
-        List<CustomerAddress> customerAddresses = customerAddressRepository.findAddressesByCustomerId(address.getCustomer().getId());
+        List<CustomerAddress> customerAddresses = customerAddressRepository.findByCustomerId(address.getCustomer().getId());
 
         for (CustomerAddress item : customerAddresses) {
             item.setIsDefault(false);
@@ -191,12 +191,6 @@ public class CustomerService {
         address.setUpdatedDate(LocalDateTime.now());
         CustomerAddress updatedAddress = customerAddressRepository.save(address);
         return CustomerAddressResponseDTO.fromEntity(updatedAddress);
-    }
-
-    public List<OrdersResponseDTO> getCustomerOrders(Integer customerId) {
-        Customer customer = customerRepository.findCustomerById(customerId).orElseThrow(() -> ResourceNotFoundException.notFound("Customer", customerId));
-        List<Orders> orders = ordersRepository.findOrdersByCustomerId(customer.getId());
-        return OrdersResponseDTO.fromEntity(orders);
     }
 
 

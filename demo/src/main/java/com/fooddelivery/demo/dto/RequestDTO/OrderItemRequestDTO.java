@@ -25,10 +25,6 @@ public class OrderItemRequestDTO {
 
     private String specialInstructions;
 
-    @NotEmpty(message = "Order must contain at least one menu item")
-    List<MenuItemRequestDTO> items;
-
-
     public OrderItem toEntity() {
         OrderItem orderItem = new OrderItem();
         applyTo(orderItem);
@@ -37,7 +33,6 @@ public class OrderItemRequestDTO {
     }
 
     public void applyTo(OrderItem orderItem) {
-
         orderItem.setQuantity(quantity);
         orderItem.setSpecialInstructions(specialInstructions);
 

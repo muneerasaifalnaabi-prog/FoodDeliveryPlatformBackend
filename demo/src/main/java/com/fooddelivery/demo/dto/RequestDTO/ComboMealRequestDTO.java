@@ -36,7 +36,6 @@ public class ComboMealRequestDTO {
     }
 
     public void applyTo(ComboMeal comboMeal) {
-
         comboMeal.setComboName(comboName);
         comboMeal.setDescription(description);
         comboMeal.setTotalPrice(totalPrice);

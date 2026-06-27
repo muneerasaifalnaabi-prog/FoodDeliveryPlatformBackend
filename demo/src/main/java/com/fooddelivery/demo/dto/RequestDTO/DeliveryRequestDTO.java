@@ -22,13 +22,11 @@ public class DeliveryRequestDTO {
     public Delivery toEntity() {
 
         Delivery delivery = new Delivery();
-
         delivery.setStatus(status != null ? status : "ASSIGNED");
         return delivery;
     }
 
     public void applyTo(Delivery delivery) {
-
-        delivery.setStatus(status);
+        delivery.setStatus( status != null ? status : "ASSIGNED" );
     }
 }

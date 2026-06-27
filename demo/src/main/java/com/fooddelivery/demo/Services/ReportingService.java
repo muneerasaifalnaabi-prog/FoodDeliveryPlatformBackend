@@ -45,27 +45,18 @@ public class ReportingService {
         return totalOrder;
     }
 
-    public List<CustomerResponseDTO> getTop10LoyaltyCustomers() {
-        List<Customer> customers = customerRepository.findTopLoyaltyCustomers();
 
-        List<CustomerResponseDTO> customerResponseDTOS = new ArrayList<>();
+    public List<CustomerResponseDTO> findTopLoyaltyCustomers() {
+        Pageable pageable = PageRequest.of(0, 10);
+        List<Customer> customers = customerRepository.findTopLoyaltyCustomers(pageable);
+        List<CustomerResponseDTO> response = new ArrayList<>();
         for (Customer customer : customers) {
-            customerResponseDTOS.add(CustomerResponseDTO.fromEntity(customer));
+            response.add( CustomerResponseDTO .fromEntity(customer) );
         }
-        return customerResponseDTOS;
+        return response;
     }
 
-    /*
-    public List<DeliveryDriverResponseDTO> getTop10DriverLeaderboard(){
-        List<DeliveryDriver> drivers = deliveryDriverRepository.getTop10DriverLeaderboard();
-        List<DeliveryDriverResponseDTO> deliveryDriverResponseDTOS = new ArrayList<>();
-        for (DeliveryDriver deliveryDriver : drivers) {
-            deliveryDriverResponseDTOS.add(DeliveryDriverResponseDTO.fromEntity(deliveryDriver));
-        }
-        return deliveryDriverResponseDTOS;
-    }
 
-     */
     public List<DeliveryDriverResponseDTO> getTop10DriverLeaderboard() {
         Pageable pageable = PageRequest.of(0, 10);
         List<DeliveryDriver> drivers = deliveryDriverRepository.getTop10DriverLeaderboard(pageable);

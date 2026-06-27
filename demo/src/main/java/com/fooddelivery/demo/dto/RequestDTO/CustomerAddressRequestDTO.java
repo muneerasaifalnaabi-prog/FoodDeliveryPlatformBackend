@@ -27,7 +27,6 @@ public class CustomerAddressRequestDTO {
     }
 
     public void applyTo(CustomerAddress address) {
-
         address.setStreet(street);
         address.setCity(city);
         address.setBuilding(building);

@@ -43,7 +43,6 @@ public class DeliveryDriverRequestDTO {
     private Boolean isOnline;
 
     public DeliveryDriver toEntity() {
-
         DeliveryDriver driver = new DeliveryDriver();
         applyTo(driver);
 
@@ -51,7 +50,6 @@ public class DeliveryDriverRequestDTO {
     }
 
     public void applyTo(DeliveryDriver driver) {
-
         driver.setFirstName(firstName);
         driver.setLastName(lastName);
         driver.setEmail(email);
@@ -61,7 +59,6 @@ public class DeliveryDriverRequestDTO {
         driver.setVehiclePlate(vehiclePlate);
         driver.setCurrentLat(currentLat);
         driver.setCurrentLng(currentLng);
-
         driver.setIsOnline(isOnline != null ? isOnline : false);
     }
 }

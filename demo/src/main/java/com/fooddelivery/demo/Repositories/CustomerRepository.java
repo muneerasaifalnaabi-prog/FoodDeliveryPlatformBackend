@@ -12,9 +12,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CustomerRepository extends JpaRepository<Customer, Integer> {
-    @Query("SELECT c FROM Customer c WHERE c.email = :email AND c.isActive = true")
-    Optional<Customer> findByEmail(@Param("email") String email);
-
     @Query("SELECT c FROM Customer c WHERE c.loyaltyPoints >= :points AND c.isActive = true")
     List<Customer> findByLoyaltyPointsGreaterThanEqual(@Param("points") int points);
 
@@ -28,16 +25,13 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
     List<Customer> findAllActiveCustomers();
 
     @Query("SELECT c FROM Customer c WHERE c.email = :email AND c.isActive = true ")
-    Optional<Customer> findCustomerByEmail( @Param("email") String email );
+    Optional<Customer> findCustomerByEmail(@Param("email") String email);
 
     @Query("SELECT c FROM Customer c WHERE c.isActive = true AND ( LOWER(c.firstName) LIKE LOWER(CONCAT('%', :name, '%')) OR LOWER(c.lastName) LIKE LOWER(CONCAT('%', :name, '%')) ) ")
-    Page<Customer> searchCustomersByName(@Param("name") String name, Pageable pageable );
+    Page<Customer> searchCustomersByName(@Param("name") String name, Pageable pageable);
 
     @Query(" SELECT c FROM Customer c WHERE c.isActive = true ORDER BY c.loyaltyPoints DESC ")
-    List<Customer> findTopLoyaltyCustomers();
-
-
-
+    List<Customer> findTopLoyaltyCustomers(Pageable pageable);
 
 
 }

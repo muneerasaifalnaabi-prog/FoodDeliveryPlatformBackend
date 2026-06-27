@@ -54,7 +54,6 @@ public class CorporateOrderRequestDTO {
     }
 
     public void applyTo(CorporateOrder order) {
-
         order.setCorporateCode(corporateCode);
         order.setCompanyName(companyName);
         order.setCostCenter(costCenter);
