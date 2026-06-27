@@ -33,9 +33,11 @@ public class OrderService {
     private MenuItemRepository menuItemRepository;
     @Autowired
     private CorporateOrderRepository corporateOrderRepository;
-
+    //****========
+    //Create Order
+    //==========****
     public OrdersResponseDTO createOrder(Integer customerId, Integer restaurantId, List<OrderItemRequestDTO> items) {
-        Customer customer = customerRepository.findCustomerById(customerId).orElseThrow(() -> ResourceNotFoundException.notFound("Restaurant", customerId));
+        Customer customer = customerRepository.findCustomerById(customerId).orElseThrow(() -> ResourceNotFoundException.notFound("Customer", customerId));
         Restaurant restaurant = restaurantRepository.findRestaurantById(restaurantId).orElseThrow(() -> ResourceNotFoundException.notFound("Restaurant", restaurantId));
 
         Orders order = new Orders();
@@ -92,7 +94,9 @@ public class OrderService {
         Orders updatedOrder = ordersRepository.save(savedOrder);
         return OrdersResponseDTO.fromEntity(updatedOrder);
     }
-
+    //****========
+    //Create Order With note
+    //==========****
     public OrdersResponseDTO createOrder(Integer customerId, Integer restaurantId, List<OrderItemRequestDTO> items, String notes) {
 
         if (items == null || items.isEmpty()) {
@@ -161,8 +165,9 @@ public class OrderService {
         Orders updatedOrder = ordersRepository.save(savedOrder);
         return OrdersResponseDTO.fromEntity(updatedOrder);
     }
-
-
+    //****========
+    //Add Menu item to order
+    //==========****
     public OrdersResponseDTO addMenuItemToOrder(Integer orderId, Integer menuItemId, int quantity) {
         Orders order = ordersRepository.findOrderById(orderId).orElseThrow(() -> ResourceNotFoundException.notFound("Order", orderId));
         MenuItem menuItem = menuItemRepository.findMenuItemById(menuItemId).orElseThrow(() -> ResourceNotFoundException.notFound("Menu Item", menuItemId));
@@ -187,9 +192,10 @@ public class OrderService {
         order.setUpdatedDate(LocalDateTime.now());
         return OrdersResponseDTO.fromEntity(ordersRepository.save(order));
     }
-
+    //****========
+    //Remove menu item from order
+    //==========****
     public OrdersResponseDTO removeMenuItemFromOrder(Integer orderId, Integer orderItemId) {
-
         Orders order = ordersRepository.findOrderById(orderId).orElseThrow(() -> ResourceNotFoundException.notFound("Order", orderId));
 
         //only PENDING orders can have items removed
@@ -218,35 +224,55 @@ public class OrderService {
 
         return OrdersResponseDTO.fromEntity(ordersRepository.save(order));
     }
+    //****========
+    //Apply Discount...
+    //==========****
 
     public OrdersResponseDTO applyDiscount(Integer orderId, double discountAmount) {
-
         Orders order = ordersRepository.findOrderById(orderId).orElseThrow(() -> ResourceNotFoundException.notFound("Order", orderId));
 
-        //  reject a negative discount outright — that would be a surcharge,not a discount, and this method isn't meant to increase the price.
         if (discountAmount < 0) {
             throw new IllegalArgumentException("Discount amount cannot be negative.");
         }
 
-        double subtotal = order.getSubtotal().doubleValue();
-        double deliveryFee = order.getRestaurant().getDeliveryFee().doubleValue();
+        BigDecimal subtotal = order.getSubtotal() != null
+                        ? order.getSubtotal()
+                        : BigDecimal.ZERO;
 
-        // a discount can never exceed what's actually owed before it's applied — otherwise the resulting total goes negative.
-        double maxDiscount = subtotal + deliveryFee;
-        if (discountAmount > maxDiscount) {
-            throw new IllegalArgumentException("Discount amount " + discountAmount + " exceeds the order's payable total of " + maxDiscount);
+        BigDecimal deliveryFee = order.getRestaurant().getDeliveryFee() != null
+                        ? order.getRestaurant().getDeliveryFee()
+                        : BigDecimal.ZERO;
+
+        BigDecimal maxDiscount = subtotal.add(deliveryFee);
+
+        if (BigDecimal.valueOf(discountAmount)
+                .compareTo(maxDiscount) > 0) {
+            throw new IllegalArgumentException(
+                    "Discount amount exceeds payable total.");
         }
+        BigDecimal total = subtotal.add(deliveryFee).subtract(BigDecimal.valueOf(discountAmount));
 
-        double total = HelperUtils.calculateTotal(subtotal, deliveryFee, discountAmount);
+        order.setDiscountAmount(BigDecimal.valueOf(discountAmount)
+        );
 
-        //store the discount on the order, not just bake it into the total.
-        order.setDiscountAmount(BigDecimal.valueOf(discountAmount));
-        order.setTotalAmount(BigDecimal.valueOf(total));
-        order.setUpdatedDate(LocalDateTime.now());
+        order.setTotalAmount(total);
 
-        return OrdersResponseDTO.fromEntity(ordersRepository.save(order));
+        order.setUpdatedDate(
+                LocalDateTime.now()
+        );
+
+        Orders updatedOrder =
+                ordersRepository.save(order);
+
+        return OrdersResponseDTO.fromEntity(
+                updatedOrder
+        );
     }
 
+
+    //****========
+    //Update Order status
+    //==========****
     public OrdersResponseDTO updateOrderStatus(Integer orderId, String newStatus) {
         Orders order = ordersRepository.findOrderById(orderId).orElseThrow(() -> ResourceNotFoundException.notFound("Order", orderId));
 
@@ -254,7 +280,9 @@ public class OrderService {
         order.setUpdatedDate(LocalDateTime.now());
         return OrdersResponseDTO.fromEntity(ordersRepository.save(order));
     }
-
+    //****========
+    //Cancel order
+    //==========****
     public String cancelOrder(Integer orderId) {
         Orders order = ordersRepository.findOrderById(orderId).orElseThrow(() -> ResourceNotFoundException.notFound("Order", orderId));
 
@@ -267,7 +295,6 @@ public class OrderService {
         ordersRepository.save(order);
         return "Order cancelled successfully";
     }
-
     public OrdersResponseDTO calculateOrderTotals(Integer orderId) {
 
         Orders order = ordersRepository.findOrderById(orderId).orElseThrow(() -> ResourceNotFoundException.notFound("Order", orderId));

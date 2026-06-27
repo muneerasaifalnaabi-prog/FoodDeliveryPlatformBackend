@@ -11,7 +11,6 @@ import com.fooddelivery.demo.Repositories.OrdersRepository;
 import com.fooddelivery.demo.Repositories.RestaurantRepository;
 import com.fooddelivery.demo.dto.ResponseDTO.CustomerResponseDTO;
 import com.fooddelivery.demo.dto.ResponseDTO.DeliveryDriverResponseDTO;
-import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

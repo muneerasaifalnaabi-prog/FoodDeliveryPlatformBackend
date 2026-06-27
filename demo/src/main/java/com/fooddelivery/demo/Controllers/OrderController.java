@@ -6,7 +6,6 @@ import com.fooddelivery.demo.dto.RequestDTO.CorporateOrderRequestDTO;
 import com.fooddelivery.demo.dto.RequestDTO.OrderItemRequestDTO;
 import com.fooddelivery.demo.dto.ResponseDTO.CorporateOrderResponseDTO;
 import com.fooddelivery.demo.dto.ResponseDTO.OrdersResponseDTO;
-import com.fooddelivery.demo.dto.ResponseDTO.RestaurantResponseDTO;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,8 +24,8 @@ public class OrderController {
     private OrderService orderService;
 
     @PostMapping("/customer/{customerId}/restaurant/{restaurantId}")
-    public ResponseEntity<OrdersResponseDTO> createOrder(@PathVariable Integer customerId, @PathVariable Integer restaurantId) {
-        return new ResponseEntity<>(orderService.createOrder(customerId, restaurantId, new ArrayList<>()), HttpStatus.CREATED);
+    public ResponseEntity<OrdersResponseDTO> createOrder(@PathVariable Integer customerId, @PathVariable Integer restaurantId, @Valid @RequestBody List<OrderItemRequestDTO> items) {
+        return new ResponseEntity<>(orderService.createOrder(customerId, restaurantId, items), HttpStatus.CREATED);
     }
 
     @PostMapping("/{id}/items")
@@ -36,17 +35,18 @@ public class OrderController {
 
     @DeleteMapping("/{id}/items/{itemId}")
     public ResponseEntity<OrdersResponseDTO> deleteOrderItem(@PathVariable Integer id, @PathVariable Integer itemId) {
-        return new ResponseEntity<>(orderService.removeMenuItemFromOrder(id, itemId), HttpStatus.NO_CONTENT);
+        orderService.removeMenuItemFromOrder(id, itemId);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}/discount/{amount}")
-    public ResponseEntity<OrdersResponseDTO> applyDiscount(@PathVariable Integer id, @PathVariable Integer amount) {
+    public ResponseEntity<OrdersResponseDTO> applyDiscount(@PathVariable Integer id, @PathVariable Double amount) {
         return ResponseEntity.ok(orderService.applyDiscount(id, amount));
     }
 
     @PutMapping("/{id}/confirm")
     public ResponseEntity<OrdersResponseDTO> confirmOrder(@PathVariable Integer id) {
-        return ResponseEntity.ok(orderService.updateOrderStatus(id, "COMPLETED"));
+        return ResponseEntity.ok(orderService.updateOrderStatus(id, "PREPARING"));
     }
 
     @PutMapping("/{id}/status/{status}")
@@ -56,7 +56,7 @@ public class OrderController {
 
     @PutMapping("/{id}/cancel")
     public ResponseEntity<String> cancelOrder(@PathVariable Integer id) {
-        return new ResponseEntity<>(orderService.cancelOrder(id), HttpStatus.CONFLICT);
+        return ResponseEntity.ok(orderService.cancelOrder(id));
     }
 
     @GetMapping("/{id}")

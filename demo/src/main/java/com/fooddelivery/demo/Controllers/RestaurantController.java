@@ -93,10 +93,12 @@ public class RestaurantController {
         return ResponseEntity.ok(restaurantService.getRestaurantAnalytics(id));
     }
 
-    @GetMapping("/near")
+    /*@GetMapping("/near")
     public ResponseEntity<List<RestaurantResponseDTO>> getNearbyRestaurants(@RequestParam double lat, @RequestParam double lng, @RequestParam double radiusKm) {
         return ResponseEntity.ok(restaurantService.getNearbyRestaurants(lat, lng, radiusKm));
     }
+
+     */
 
     @GetMapping("/{id}/menu/top-sellers")
     public ResponseEntity<List<MenuItemResponseDTO>> getTopSellingMenuItems(@PathVariable Integer id) {
