@@ -45,9 +45,7 @@ public class RestaurantOwnerRequestDTO {
         owner.setLastName(lastName);
         owner.setEmail(email);
         owner.setPhone(phone);
-
         owner.setPasswordHash(password);
-
         owner.setBusinessLicenseCode(businessLicenseCode);
     }
 }

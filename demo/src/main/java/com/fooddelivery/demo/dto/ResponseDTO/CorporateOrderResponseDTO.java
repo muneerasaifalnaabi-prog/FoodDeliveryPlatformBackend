@@ -39,7 +39,7 @@ public class CorporateOrderResponseDTO {
         return dto;
     }
 
-    public static List<CorporateOrderResponseDTO> fromEntityList(List<CorporateOrder> entities) {
+    public static List<CorporateOrderResponseDTO> fromEntity(List<CorporateOrder> entities) {
 
         List<CorporateOrderResponseDTO> dtos = new ArrayList<>();
 

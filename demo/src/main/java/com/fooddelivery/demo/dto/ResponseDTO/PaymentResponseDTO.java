@@ -36,7 +36,7 @@ public class PaymentResponseDTO {
         return dto;
     }
 
-    public static List<PaymentResponseDTO> fromEntityList(List<Payment> entities) {
+    public static List<PaymentResponseDTO> fromEntity(List<Payment> entities) {
         List<PaymentResponseDTO> dtos = new ArrayList<>();
 
         for (Payment entity : entities) {

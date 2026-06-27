@@ -36,17 +36,14 @@ public class OrdersRequestDTO {
 
     public Orders toEntity() {
         Orders order = new Orders();
+        applyTo(order);
 
-        order.setStatus(status != null ? status : "PENDING");
-        order.setDiscountAmount(discountAmount != null ? discountAmount : BigDecimal.ZERO);
-        order.setDeliveryNotes(deliveryNotes);
         return order;
     }
 
     public void applyTo(Orders order) {
-
-        order.setStatus(status);
-        order.setDiscountAmount(discountAmount);
+        order.setStatus(status != null ? status : "PENDING");
+        order.setDiscountAmount(discountAmount != null ? discountAmount : BigDecimal.ZERO);
         order.setDeliveryNotes(deliveryNotes);
     }
 }

@@ -24,7 +24,6 @@ public class ComboMealResponseDTO {
     private List<MenuItemSummaryDTO> menuItems;
 
     public static ComboMealResponseDTO fromEntity(ComboMeal entity) {
-
         ComboMealResponseDTO dto = new ComboMealResponseDTO();
 
         dto.setId(entity.getId());
@@ -47,7 +46,6 @@ public class ComboMealResponseDTO {
     }
 
     public static List<ComboMealResponseDTO> fromEntityList(List<ComboMeal> entities) {
-
         List<ComboMealResponseDTO> dtos = new ArrayList<>();
 
         for (ComboMeal entity : entities) {
