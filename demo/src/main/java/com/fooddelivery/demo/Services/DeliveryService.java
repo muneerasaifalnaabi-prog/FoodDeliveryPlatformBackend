@@ -31,6 +31,9 @@ public class DeliveryService {
     @Autowired
     ReviewRepository reviewRepository;
 
+    //****========
+    //assign Driver to order manually
+    //==========****
     public DeliveryResponseDTO assignDriverToOrders(Integer orderId, Integer driverId) {
         Orders orders = ordersRepository.findById(orderId).orElseThrow(() -> ResourceNotFoundException.notFound("Order", orderId));
         //check if status confirmed or not
@@ -52,6 +55,9 @@ public class DeliveryService {
         return DeliveryResponseDTO.fromEntity(deliveryRepository.save(delivery));
     }
 
+    //****========
+    //auto assign Driver to order
+    //==========****
     public DeliveryResponseDTO autoAssignDriver(Integer orderId) {
         Orders orders = ordersRepository.findById(orderId).orElseThrow(() -> ResourceNotFoundException.notFound("Order", orderId));
         DeliveryDriver driver = deliveryDriverRepository.findFirstAvailableOnlineDriver().orElseThrow(() -> ResourceNotFoundException.notFound("Driver", orderId));
@@ -72,6 +78,9 @@ public class DeliveryService {
         return DeliveryResponseDTO.fromEntity(deliveryRepository.save(delivery));
     }
 
+    //****========
+    //update driver location
+    //==========****
     public DeliveryDriverResponseDTO updateDriverLocation(Integer driverId, double lat, double lng) {
         DeliveryDriver driver = deliveryDriverRepository.findDriverById(driverId).orElseThrow(() -> ResourceNotFoundException.notFound("Driver", driverId));
 
@@ -82,6 +91,9 @@ public class DeliveryService {
         return DeliveryDriverResponseDTO.fromEntity(deliveryDriverRepository.save(driver));
     }
 
+    //****========
+    //mark delivery picked up
+    //==========****
     public DeliveryResponseDTO markDeliveryPickedUp(Integer deliveryId) {
         Delivery delivery = deliveryRepository.findById(deliveryId).orElseThrow(() -> ResourceNotFoundException.notFound("Delivery", deliveryId));
 
@@ -89,8 +101,8 @@ public class DeliveryService {
             throw InvalidOrderStateException.invalidState("cannot pick up delivery");
         }
         delivery.setStatus("PICKED_UP");
-        delivery.setAssignedAt(LocalDateTime.now());
         delivery.setUpdatedDate(LocalDateTime.now());
+        delivery.setPickedUpAt(LocalDateTime.now());
         deliveryRepository.save(delivery);
 
         Orders orders = delivery.getOrders();
@@ -105,8 +117,7 @@ public class DeliveryService {
             throw InvalidOrderStateException.invalidState("cannot deliver delivery");
         }
         delivery.setStatus("DELIVERED");
-        delivery.setAssignedAt(LocalDateTime.now());
-        delivery.setUpdatedDate(LocalDateTime.now());
+        delivery.setDeliveredAt(LocalDateTime.now());
         deliveryRepository.save(delivery);
         Orders orders = delivery.getOrders();
         orders.setStatus("DELIVERED");
@@ -123,6 +134,9 @@ public class DeliveryService {
 
     }
 
+    //****========
+    //make driver online
+    //==========****
     public String toggleDriverOnlineStatus(Integer driverId, boolean isOnline) {
         DeliveryDriver driver = deliveryDriverRepository.findDriverById(driverId).orElseThrow(() -> ResourceNotFoundException.notFound("Driver", driverId));
         driver.setIsOnline(isOnline);
@@ -134,8 +148,10 @@ public class DeliveryService {
         return "Driver is now OFFLINE";
     }
 
+    //****========
+    //Create Driver
+    //==========****
     public DeliveryDriverResponseDTO createDriver(DeliveryDriverRequestDTO dto) {
-
         Optional<DeliveryDriver> existingDriver = deliveryDriverRepository.findDriverByEmail(dto.getEmail());
 
         if (existingDriver.isPresent()) {
@@ -152,11 +168,17 @@ public class DeliveryService {
         return DeliveryDriverResponseDTO.fromEntity(savedDriver);
     }
 
+    //****========
+    //get all driver
+    //==========****
     public List<DeliveryDriverResponseDTO> getAllDrivers() {
         List<DeliveryDriver> drivers = deliveryDriverRepository.findAllActiveDrivers();
         return DeliveryDriverResponseDTO.fromEntity(drivers);
     }
 
+    //****========
+    //Get online Driver
+    //==========****
     public List<DeliveryDriverResponseDTO> getOnlineDrivers() {
         List<DeliveryDriver> drivers = deliveryDriverRepository.findOnlineDrivers();
         return DeliveryDriverResponseDTO.fromEntity(drivers);
@@ -175,16 +197,25 @@ public class DeliveryService {
         return DeliveryResponseDTO.fromEntity(delivery);
     }
 
+    //****========
+    //Get Delivery By Id
+    //==========****
     public DeliveryResponseDTO getDeliveryById(Integer deliveryId) {
         Delivery delivery = deliveryRepository.findDeliveryById(deliveryId).orElseThrow(() -> ResourceNotFoundException.notFound("Delivery", deliveryId));
         return DeliveryResponseDTO.fromEntity(delivery);
     }
 
+    //****========
+    //Get delivery by status
+    //==========****
     public List<DeliveryResponseDTO> getDeliveriesByStatus(String status) {
         List<Delivery> deliveries = deliveryRepository.findByStatus(status);
         return DeliveryResponseDTO.fromEntity(deliveries);
     }
 
+    //****========
+    //Get Near driver
+    //==========****
     public List<DeliveryDriverResponseDTO> getNearbyDrivers(double lat, double lng, double radiusKm) {
         List<DeliveryDriver> drivers = deliveryDriverRepository.findOnlineDrivers();
         List<DeliveryDriverResponseDTO> response = new ArrayList<>();
@@ -197,6 +228,9 @@ public class DeliveryService {
         return response;
     }
 
+    //****========
+    //Get driver performance
+    //==========****
     public Map<String, Object> getDriverPerformance(Integer driverId) {
         deliveryDriverRepository.findDriverById(driverId).orElseThrow(() -> ResourceNotFoundException.notFound("Driver", driverId));
         Double completedDeliveries = deliveryRepository.countCompletedDeliveries(driverId);
@@ -208,7 +242,11 @@ public class DeliveryService {
         performance.put("averageRating", averageRating);
         return performance;
     }
-    public Double getDriverEarnings(Integer driverId,Date from, Date to) {
+
+    //****========
+    //get Driver Earnings
+    //==========****
+    public Double getDriverEarnings(Integer driverId, Date from, Date to) {
         Double earnings = deliveryRepository.getDriverEarnings(driverId, from, to);
         return earnings != null ? earnings : 0.0;
     }
