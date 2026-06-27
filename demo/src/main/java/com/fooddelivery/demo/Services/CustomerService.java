@@ -67,8 +67,13 @@ public class CustomerService {
 
         return CustomerResponseDTO.fromEntity(customerRepository.save(customer));
     }
-
-    public CustomerResponseDTO createCustomer(CustomerRequestDTO dto, CustomerAddressRequestDTO custaddress) {
+    //****========
+    //add new customer with address by first check if return empty,if customer already exist or not and id address not empty.
+    //==========****
+    public CustomerResponseDTO createCustomer(CustomerRequestDTO dto, CustomerAddressRequestDTO custAddress) {
+        if (dto == null) {
+            throw InvalidOrderStateException.invalidState("Customer data is required");
+        }
         Optional<Customer> existCustomer = customerRepository.findCustomerByEmail(dto.getEmail());
 
         if (existCustomer.isPresent()) {
@@ -82,7 +87,7 @@ public class CustomerService {
 
         Customer savedCustomer = customerRepository.save(customer);
 
-        CustomerAddress address = custaddress.toEntity();
+        CustomerAddress address = custAddress.toEntity();
         address.setCustomer(savedCustomer);
         address.setCreatedDate(LocalDateTime.now());
         address.setUpdatedDate(LocalDateTime.now());
@@ -92,10 +97,15 @@ public class CustomerService {
 
         return CustomerResponseDTO.fromEntity(savedCustomer);
     }
-
+    //****========
+    //add address for exist customer ,if not found customer return exception
+    //==========****
     public CustomerAddressResponseDTO addAddress(Integer customerId, CustomerAddressRequestDTO addressDTO) {
 
         Customer customer = customerRepository.findCustomerById(customerId).orElseThrow(() -> ResourceNotFoundException.notFound("Customer", customerId));
+         if (addressDTO == null) {
+             throw InvalidOrderStateException.invalidState("Address data is required");
+         }
 
         CustomerAddress address = addressDTO.toEntity();
 
@@ -107,7 +117,9 @@ public class CustomerService {
         return CustomerAddressResponseDTO.fromEntity(customerAddressRepository.save(address));
 
     }
-
+    //****========
+    //update loyalty points by add points
+    //==========****
     public CustomerResponseDTO updateLoyaltyPoints(Integer customerId, int points) {
         Customer customer = customerRepository.findCustomerById(customerId).orElseThrow(() -> ResourceNotFoundException.notFound("Customer", customerId));
 
@@ -117,7 +129,9 @@ public class CustomerService {
         return CustomerResponseDTO.fromEntity(customerRepository.save(customer));
 
     }
-
+    //****========
+    // deduct points
+    //==========****
     public CustomerResponseDTO applyLoyaltyPenalty(Integer customerId, int pointsDeducted) {
         Customer customer = customerRepository.findCustomerById(customerId).orElseThrow(() -> ResourceNotFoundException.notFound("Customer", customerId));
 
@@ -129,10 +143,12 @@ public class CustomerService {
         customer.setUpdatedDate(LocalDateTime.now());
         return CustomerResponseDTO.fromEntity(customerRepository.save(customer));
     }
-
+    //****========
+    //deactivate customer that not showing in list of customer ,in database mark active to fals
+    //==========****
     public String deactivateCustomer(Integer customerId) {
         Customer customer = customerRepository.findCustomerById(customerId).orElseThrow(() -> ResourceNotFoundException.notFound("Customer", customerId));
-        if (customer.getIsActive() == null || customer.getIsActive()) {
+        if (customer.getIsActive() == null) {
             customer.setIsActive(false);
             customer.setUpdatedDate(LocalDateTime.now());
             customerRepository.save(customer);
