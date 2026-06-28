@@ -8,7 +8,6 @@ import com.fooddelivery.demo.Exceptions.DuplicateResourceException;
 import com.fooddelivery.demo.Exceptions.InvalidOrderStateException;
 import com.fooddelivery.demo.Exceptions.ResourceNotFoundException;
 import com.fooddelivery.demo.Repositories.*;
-import com.fooddelivery.demo.Utils.HelperUtils;
 import com.fooddelivery.demo.dto.RequestDTO.ComboMealRequestDTO;
 import com.fooddelivery.demo.dto.RequestDTO.MenuItemRequestDTO;
 import com.fooddelivery.demo.dto.RequestDTO.RestaurantRequestDTO;
@@ -241,7 +240,7 @@ public class RestaurantService {
         return response;
     }
 
-    public Double getRestaurantRevenueBetweenDates(Integer restaurantId, Date from, Date to) {
+    public Double getRestaurantRevenueBetweenDates(Integer restaurantId, LocalDateTime from, LocalDateTime to) {
         Double revenue = ordersRepository.getRestaurantRevenueBetweenDates(restaurantId, from, to);
         return revenue != null ? revenue : 0.0;
     }

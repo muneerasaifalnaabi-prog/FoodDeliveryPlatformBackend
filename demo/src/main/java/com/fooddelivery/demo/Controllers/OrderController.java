@@ -8,12 +8,14 @@ import com.fooddelivery.demo.dto.ResponseDTO.CorporateOrderResponseDTO;
 import com.fooddelivery.demo.dto.ResponseDTO.OrdersResponseDTO;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -74,6 +76,27 @@ public class OrderController {
         return new ResponseEntity<>(orderService.placeCorporateOrder(dto), HttpStatus.CREATED);
     }
 
+    @GetMapping("/{id}/timeline")
+    public ResponseEntity<List<String>> getOrderTimeline(@PathVariable Integer id) {
+        return ResponseEntity.ok(orderService.getOrderTimeline(id));
+    }
+
+    @PostMapping("/{id}/reorder")
+    public ResponseEntity<OrdersResponseDTO> reorder(@PathVariable Integer id) {
+        return new ResponseEntity<>(orderService.reorder(id), HttpStatus.CREATED);
+    }
+
+    @GetMapping("/customer/{customerId}")
+    public ResponseEntity<Page<OrdersResponseDTO>> getCustomerOrdersFiltered(@PathVariable Integer customerId, @RequestParam(required = false) String status, @RequestParam(required = false) String from, @RequestParam(required = false) String to, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+
+        return ResponseEntity.ok(orderService.getCustomerOrdersFiltered(customerId, status, from, to, page, size));
+    }
+
+    @GetMapping("/{id}/eta")
+    public ResponseEntity<Map<String, Object>> getEstimatedDeliveryTime(@PathVariable Integer id) {
+        return ResponseEntity.ok(orderService.getEstimatedDeliveryTime(id)
+        );
+    }
 
 
 }

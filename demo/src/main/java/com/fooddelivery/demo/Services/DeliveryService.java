@@ -60,7 +60,10 @@ public class DeliveryService {
     //==========****
     public DeliveryResponseDTO autoAssignDriver(Integer orderId) {
         Orders orders = ordersRepository.findById(orderId).orElseThrow(() -> ResourceNotFoundException.notFound("Order", orderId));
-        DeliveryDriver driver = deliveryDriverRepository.findFirstAvailableOnlineDriver().orElseThrow(() -> ResourceNotFoundException.notFound("Driver", orderId));
+        List<DeliveryDriver> drivers = deliveryDriverRepository.findFirstAvailableOnlineDriver();
+        if (drivers.isEmpty()) {
+            throw ResourceNotFoundException.notFound( "Online Driver", orderId );
+        } DeliveryDriver driver = drivers.get(0);
 
         if (!orders.getStatus().equals("CONFIRMED")) {
             throw InvalidOrderStateException.invalidState("cannot assign driver to order");
@@ -93,28 +96,30 @@ public class DeliveryService {
 
     //****========
     //mark delivery picked up
-    //==========****
+
     public DeliveryResponseDTO markDeliveryPickedUp(Integer deliveryId) {
+
         Delivery delivery = deliveryRepository.findById(deliveryId).orElseThrow(() -> ResourceNotFoundException.notFound("Delivery", deliveryId));
 
-        if (!delivery.getStatus().equals("PICKED_UP")) {
-            throw InvalidOrderStateException.invalidState("cannot pick up delivery");
+        if (!delivery.getStatus().equals("ASSIGNED")) {
+            throw InvalidOrderStateException.invalidState("Delivery must be ASSIGNED before pickup.");
         }
-        delivery.setStatus("PICKED_UP");
-        delivery.setUpdatedDate(LocalDateTime.now());
-        delivery.setPickedUpAt(LocalDateTime.now());
-        deliveryRepository.save(delivery);
 
+        delivery.setStatus("PICKED_UP");
+        delivery.setPickedUpAt(LocalDateTime.now());
+        delivery.setUpdatedDate(LocalDateTime.now());
         Orders orders = delivery.getOrders();
         orders.setStatus("ON_THE_WAY");
+
         ordersRepository.save(orders);
         return DeliveryResponseDTO.fromEntity(deliveryRepository.save(delivery));
     }
 
+
     public DeliveryResponseDTO markDeliveryDelivered(Integer deliveryId) {
         Delivery delivery = deliveryRepository.findById(deliveryId).orElseThrow(() -> ResourceNotFoundException.notFound("Delivery", deliveryId));
-        if (!delivery.getStatus().equals("DELIVERED")) {
-            throw InvalidOrderStateException.invalidState("cannot deliver delivery");
+        if (!delivery.getStatus().equals("PICKED_UP")) {
+            throw InvalidOrderStateException.invalidState( "Delivery must be PICKED_UP before delivery." );
         }
         delivery.setStatus("DELIVERED");
         delivery.setDeliveredAt(LocalDateTime.now());
@@ -231,17 +236,25 @@ public class DeliveryService {
     //****========
     //Get driver performance
     //==========****
-    public Map<String, Object> getDriverPerformance(Integer driverId) {
-        deliveryDriverRepository.findDriverById(driverId).orElseThrow(() -> ResourceNotFoundException.notFound("Driver", driverId));
-        Double completedDeliveries = deliveryRepository.countCompletedDeliveries(driverId);
-        Double averageDeliveryTime = deliveryRepository.getAverageDeliveryTime(driverId);
-        Double averageRating = reviewRepository.getDriverAverageRating(driverId);
-        Map<String, Object> performance = new HashMap<>();
-        performance.put("completedDeliveries", completedDeliveries);
-        performance.put("averageDeliveryTimeMinutes", averageDeliveryTime);
-        performance.put("averageRating", averageRating);
-        return performance;
-    }
+    public Map<String, Object> getDriverPerformance( Integer driverId ) {
+        deliveryDriverRepository.findDriverById(driverId) .orElseThrow(() -> ResourceNotFoundException.notFound( "Driver", driverId ) );
+     Double completedDeliveries = deliveryRepository.countCompletedDeliveries(driverId);
+    Double averageDeliveryTime = deliveryRepository.getAverageDeliveryTime(driverId);
+    Double averageRating = reviewRepository.getDriverAverageRating(driverId);
+    // prevent null values
+    if (completedDeliveries == null) {
+        completedDeliveries = 0.0;
+    } if (averageDeliveryTime == null) {
+        averageDeliveryTime = 0.0;
+    } if (averageRating == null) {
+        averageRating = 0.0;
+    } Map<String, Object> performance = new HashMap<>();
+    performance.put( "completedDeliveries",
+    completedDeliveries );
+    performance.put( "averageDeliveryTimeMinutes", averageDeliveryTime );
+    performance.put( "averageRating", averageRating );
+    return performance;
+}
 
     //****========
     //get Driver Earnings

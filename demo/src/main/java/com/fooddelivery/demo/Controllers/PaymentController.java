@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -39,9 +40,10 @@ public class PaymentController {
         return ResponseEntity.ok( paymentService.getPaymentByOrderId( orderId ) );
     }
     @GetMapping("/") public
-    ResponseEntity<Page<PaymentResponseDTO>> getPayments(@RequestParam String method, @RequestParam String status, @RequestParam Date from, @RequestParam Date to, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size ) {
+    ResponseEntity<Page<PaymentResponseDTO>> getPayments(@RequestParam String method, @RequestParam String status, @RequestParam LocalDateTime from, @RequestParam LocalDateTime to, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size ) {
         return ResponseEntity.ok( paymentService.getPayments( method, status, from, to, page, size ) );
     }
+    @GetMapping("/analytics/methods")
     public ResponseEntity<List<Object[]>> getPaymentAnalyticsByMethod() {
         return ResponseEntity.ok( paymentService.getPaymentAnalyticsByMethod() );
     }

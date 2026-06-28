@@ -10,13 +10,15 @@ import com.fooddelivery.demo.dto.RequestDTO.OrderItemRequestDTO;
 import com.fooddelivery.demo.dto.ResponseDTO.CorporateOrderResponseDTO;
 import com.fooddelivery.demo.dto.ResponseDTO.OrdersResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class OrderService {
@@ -33,6 +35,9 @@ public class OrderService {
     private MenuItemRepository menuItemRepository;
     @Autowired
     private CorporateOrderRepository corporateOrderRepository;
+    @Autowired
+    private  DeliveryDriverRepository deliveryRepository;
+
     //****========
     //Create Order
     //==========****
@@ -94,6 +99,7 @@ public class OrderService {
         Orders updatedOrder = ordersRepository.save(savedOrder);
         return OrdersResponseDTO.fromEntity(updatedOrder);
     }
+
     //****========
     //Create Order With note
     //==========****
@@ -165,33 +171,47 @@ public class OrderService {
         Orders updatedOrder = ordersRepository.save(savedOrder);
         return OrdersResponseDTO.fromEntity(updatedOrder);
     }
+
     //****========
     //Add Menu item to order
     //==========****
     public OrdersResponseDTO addMenuItemToOrder(Integer orderId, Integer menuItemId, int quantity) {
         Orders order = ordersRepository.findOrderById(orderId).orElseThrow(() -> ResourceNotFoundException.notFound("Order", orderId));
         MenuItem menuItem = menuItemRepository.findMenuItemById(menuItemId).orElseThrow(() -> ResourceNotFoundException.notFound("Menu Item", menuItemId));
-
-        if (!(order.getStatus()).equals("PENDING")) {
+        if (!order.getStatus().equals("PENDING")) {
             throw InvalidOrderStateException.invalidState("Cannot add items to an order that is not PENDING. Current status: " + order.getStatus());
+        }
+        if (quantity <= 0) {
+            throw InvalidOrderStateException.invalidState("Quantity must be greater than zero.");
+        }
+        if (!menuItem.getRestaurant().getId().equals(order.getRestaurant().getId())) {
+            throw InvalidOrderStateException.invalidState("Menu item belongs to a different restaurant.");
         }
         OrderItem item = new OrderItem();
         item.setOrders(order);
         item.setMenuItem(menuItem);
         item.setQuantity(quantity);
-        BigDecimal itemPrice = menuItem.getPrice().multiply(BigDecimal.valueOf(quantity));
+        BigDecimal itemPrice = HelperUtils.calculateItemTotal(menuItem.getPrice(), quantity);
         item.setTotalPrice(itemPrice);
         item.setCreatedDate(LocalDateTime.now());
         item.setUpdatedDate(LocalDateTime.now());
         item.setIsActive(true);
-
-        orderItemRepository.save(item);
-        order.getOrderItems().add(item);
-        BigDecimal updatedTotal = order.getTotalAmount().add(itemPrice);
+        OrderItem savedItem = orderItemRepository.save(item);
+        if (order.getOrderItems() == null) {
+            order.setOrderItems(new ArrayList<>());
+        }
+        order.getOrderItems().add(savedItem);
+        BigDecimal updatedSubtotal = order.getSubtotal() == null ? itemPrice : order.getSubtotal().add(itemPrice);
+        order.setSubtotal(updatedSubtotal);
+        BigDecimal deliveryFee = order.getRestaurant().getDeliveryFee();
+        BigDecimal discount = order.getDiscountAmount() != null ? order.getDiscountAmount() : BigDecimal.ZERO;
+        BigDecimal updatedTotal = updatedSubtotal.add(deliveryFee).subtract(discount);
         order.setTotalAmount(updatedTotal);
         order.setUpdatedDate(LocalDateTime.now());
-        return OrdersResponseDTO.fromEntity(ordersRepository.save(order));
+        Orders updatedOrder = ordersRepository.save(order);
+        return OrdersResponseDTO.fromEntity(updatedOrder);
     }
+
     //****========
     //Remove menu item from order
     //==========****
@@ -236,12 +256,12 @@ public class OrderService {
         }
 
         BigDecimal subtotal = order.getSubtotal() != null
-                        ? order.getSubtotal()
-                        : BigDecimal.ZERO;
+                ? order.getSubtotal()
+                : BigDecimal.ZERO;
 
         BigDecimal deliveryFee = order.getRestaurant().getDeliveryFee() != null
-                        ? order.getRestaurant().getDeliveryFee()
-                        : BigDecimal.ZERO;
+                ? order.getRestaurant().getDeliveryFee()
+                : BigDecimal.ZERO;
 
         BigDecimal maxDiscount = subtotal.add(deliveryFee);
 
@@ -252,7 +272,8 @@ public class OrderService {
         }
         BigDecimal total = subtotal.add(deliveryFee).subtract(BigDecimal.valueOf(discountAmount));
 
-        order.setDiscountAmount(BigDecimal.valueOf(discountAmount)
+        order.setDiscountAmount(
+                BigDecimal.valueOf(discountAmount)
         );
 
         order.setTotalAmount(total);
@@ -280,6 +301,7 @@ public class OrderService {
         order.setUpdatedDate(LocalDateTime.now());
         return OrdersResponseDTO.fromEntity(ordersRepository.save(order));
     }
+
     //****========
     //Cancel order
     //==========****
@@ -295,6 +317,7 @@ public class OrderService {
         ordersRepository.save(order);
         return "Order cancelled successfully";
     }
+
     public OrdersResponseDTO calculateOrderTotals(Integer orderId) {
 
         Orders order = ordersRepository.findOrderById(orderId).orElseThrow(() -> ResourceNotFoundException.notFound("Order", orderId));
@@ -396,9 +419,10 @@ public class OrderService {
         List<Orders> orders = ordersRepository.findOrdersByRestaurantAndStatus(restaurant.getId(), status);
         return OrdersResponseDTO.fromEntity(orders);
     }
-    public Double getCancellationRate( Date from, Date to ) {
-        Integer cancelledOrders = ordersRepository.countCancelledOrders( from, to );
-        Integer completedOrders = ordersRepository .countCompletedOrdersBetweenDates( from, to );
+
+    public Double getCancellationRate(LocalDateTime from, LocalDateTime to) {
+        Integer cancelledOrders = ordersRepository.countCancelledOrders(from, to);
+        Integer completedOrders = ordersRepository.countCompletedOrdersBetweenDates(from, to);
         Integer total = cancelledOrders + completedOrders;
         if (total == 0) {
             return 0.0;
@@ -407,12 +431,145 @@ public class OrderService {
     }
 
     public List<Object[]> getBusiestHours() {
-        return ordersRepository .getBusiestHours();
+        return ordersRepository.getBusiestHours();
+    }
+
+    public List<String> getOrderTimeline(Integer orderId) {
+        Orders order = ordersRepository.findOrderById(orderId).orElseThrow(() -> ResourceNotFoundException.notFound("Order", orderId));
+
+        List<String> timeline = new ArrayList<>();
+        timeline.add("Order Created : " + order.getCreatedDate());
+
+        if (order.getStatus().equals("CONFIRMED")) {
+            timeline.add("Order Confirmed");
+        }
+
+        if (order.getStatus().equals("PAID")) {
+            timeline.add("Payment Completed");
+        }
+
+        if (order.getStatus().equals("ON_THE_WAY")) {
+            timeline.add("Driver Picked Up Order");
+        }
+        if (order.getStatus().equals("DELIVERED")) {
+            timeline.add("Order Delivered");
+        }
+        if (order.getStatus().equals("CANCELLED")) {
+            timeline.add("Order Cancelled");
+        }
+
+        return timeline;
+    }
+
+    public OrdersResponseDTO reorder(Integer orderId) {
+        Orders oldOrder = ordersRepository.findOrderById(orderId).orElseThrow(() -> ResourceNotFoundException.notFound("Order", orderId));
+
+        Orders newOrder = new Orders();
+        newOrder.setOrderCode(HelperUtils.generateCode("ORD"));
+        newOrder.setCustomer(oldOrder.getCustomer());
+        newOrder.setRestaurant(oldOrder.getRestaurant());
+        newOrder.setStatus("PENDING");
+
+        newOrder.setDeliveryNotes(oldOrder.getDeliveryNotes());
+        newOrder.setOrderDate(LocalDateTime.now());
+        newOrder.setCreatedDate(LocalDateTime.now());
+        newOrder.setUpdatedDate(LocalDateTime.now());
+        newOrder.setIsActive(true);
+        newOrder.setDeliveryFee(oldOrder.getDeliveryFee());
+
+        List<OrderItem> newItems = new ArrayList<>();
+        double subtotal = 0.0;
+        for (OrderItem oldItem : oldOrder.getOrderItems()) {
+            OrderItem item = new OrderItem();
+            item.setOrders(newOrder);
+            item.setMenuItem(oldItem.getMenuItem());
+            item.setQuantity(oldItem.getQuantity());
+            item.setUnitPrice(oldItem.getUnitPrice());
+
+            item.setSpecialInstructions(oldItem.getSpecialInstructions());
+            double itemTotal = oldItem.getUnitPrice().doubleValue() * oldItem.getQuantity();
+
+            item.setTotalPrice(BigDecimal.valueOf(itemTotal));
+            item.setCreatedDate(LocalDateTime.now());
+            item.setUpdatedDate(LocalDateTime.now());
+
+            item.setIsActive(true);
+            subtotal += itemTotal;
+            newItems.add(item);
+        }
+
+        newOrder.setSubtotal(BigDecimal.valueOf(subtotal));
+
+        double deliveryFee = newOrder.getDeliveryFee().doubleValue();
+        double total = subtotal + deliveryFee;
+        newOrder.setTotalAmount(BigDecimal.valueOf(total));
+        newOrder.setOrderItems(newItems);
+        Orders savedOrder = ordersRepository.save(newOrder);
+
+        return OrdersResponseDTO.fromEntity(savedOrder
+        );
     }
 
 
+        public Page<OrdersResponseDTO> getCustomerOrdersFiltered(Integer customerId, String status, String from, String to, int page, int size) {
 
+            customerRepository.findCustomerById(customerId).orElseThrow(() ->ResourceNotFoundException.notFound("Customer", customerId));
 
+            Pageable pageable = PageRequest.of(page, size);
+            LocalDateTime fromDate = null;
+            LocalDateTime toDate = null;
+
+            if (from != null && !from.isBlank()) {
+                fromDate = LocalDateTime.parse(from + "T00:00:00");
+            }
+
+            if (to != null && !to.isBlank()) {
+                toDate = LocalDateTime.parse(to + "T23:59:59");
+            }
+
+            Page<Orders> orders = ordersRepository.filterCustomerOrders(customerId, status, fromDate, toDate, pageable);
+
+            List<OrdersResponseDTO> response =new ArrayList<>();
+
+            for (Orders order : orders.getContent()) {
+                response.add(OrdersResponseDTO.fromEntity(order));
+            }
+
+            return new PageImpl<>(
+                    response,
+                    pageable,
+                    orders.getTotalElements()
+            );
+        }
+
+    public Map<String, Object> getEstimatedDeliveryTime(Integer orderId) {
+
+        Orders order = ordersRepository.findOrderById(orderId).orElseThrow(() -> ResourceNotFoundException.notFound("Order", orderId));
+        Delivery delivery = deliveryRepository.findDeliveryByOrderId(orderId).orElseThrow(() ->ResourceNotFoundException.notFound("Delivery", orderId));
+
+        DeliveryDriver driver = delivery.getDeliveryDriver();
+
+        double restaurantLat = 23.5880;
+        double restaurantLng = 58.3829;
+
+        double distance = HelperUtils.calculateDistance(
+                        restaurantLat,
+                        restaurantLng,
+                        driver.getCurrentLat(),
+                        driver.getCurrentLng());
+
+        double averageSpeedKmPerHour = 40.0;
+        double etaHours = distance / averageSpeedKmPerHour;
+        int etaMinutes = (int) (etaHours * 60);
+        Map<String, Object> result = new HashMap<>();
+        result.put("orderId", order.getId());
+        result.put("driverId", driver.getId());
+        result.put("distanceKm", distance);
+        result.put("estimatedMinutes", etaMinutes);
+        result.put("status", order.getStatus());
+
+        return result;
+    }
 
 
 }

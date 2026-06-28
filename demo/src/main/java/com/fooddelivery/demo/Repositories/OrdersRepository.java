@@ -1,7 +1,6 @@
 package com.fooddelivery.demo.Repositories;
 
 import com.fooddelivery.demo.Entities.Orders;
-import lombok.Data;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -44,17 +43,17 @@ public interface OrdersRepository extends JpaRepository<Orders, Integer> {
     @Query(" SELECT o FROM Orders o WHERE o.restaurant.id = :restaurantId AND o.status = :status AND o.isActive = true ")
     List<Orders> findOrdersByRestaurantAndStatus(@Param("restaurantId") Integer restaurantId, @Param("status") String status);
 
-    @Query(" SELECT SUM(o.totalAmount) FROM Orders o WHERE o.restaurant.id = :restaurantId AND DATE(o.orderDate) = :date AND o.status = 'DELIVERED' AND o.isActive = true ")
-    Double getRestaurantRevenueByDate(@Param("restaurantId") Integer restaurantId, Date date);
+    @Query(" SELECT COALESCE(SUM(o.totalAmount), 0) FROM Orders o WHERE o.restaurant.id = :restaurantId AND o.orderDate BETWEEN :startDate AND :endDate AND o.status = 'DELIVERED' AND o.isActive = true ")
+    Double getRestaurantRevenueByDate( @Param("restaurantId") Integer restaurantId, @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate );
 
     @Query(" SELECT COUNT(o) FROM Orders o WHERE o.restaurant.id = :restaurantId AND o.isActive = true ")
     Integer countRestaurantOrders(@Param("restaurantId") Integer restaurantId);
 
     @Query("SELECT COUNT(o) FROM Orders o WHERE DATE(o.orderDate) = :date AND o.isActive = true")
-    Integer countDailyOrders(@Param("date") Date date);
+    Integer countDailyOrders(@Param("date") LocalDate date);
 
     @Query("SELECT SUM(o.deliveryFee) FROM Orders o WHERE DATE(o.orderDate) = :date AND o.isActive = true")
-    BigDecimal getPlatformDailySummary(@Param("date") Date date);
+    BigDecimal getPlatformDailySummary(@Param("date") LocalDate date);
 
     @Query("SELECT o FROM Orders o WHERE o.customer.id = :customerId AND o.status = :status AND o.orderDate BETWEEN :from AND :to AND o.isActive = true ")
     Page<Orders> findCustomerOrdersWithFilters(@Param("customerId") Integer customerId, @Param("status") String status, @Param("from") Date from, @Param("to") Date to, Pageable pageable);
@@ -63,15 +62,25 @@ public interface OrdersRepository extends JpaRepository<Orders, Integer> {
     Double getRestaurantTotalRevenue(@Param("restaurantId") Integer restaurantId);
 
     @Query(" SELECT SUM(o.totalAmount) FROM Orders o WHERE o.restaurant.id = :restaurantId AND o.status = 'DELIVERED' AND o.orderDate BETWEEN :from AND :to AND o.isActive = true ")
- Double getRestaurantRevenueBetweenDates( @Param("restaurantId") Integer restaurantId, @Param("from") Date from, @Param("to") Date to );
+    Double getRestaurantRevenueBetweenDates(@Param("restaurantId") Integer restaurantId, @Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 
-    @Query(" SELECT COUNT(o) FROM Orders o WHERE o.status = 'CANCELLED' AND o.orderDate BETWEEN :from AND :to AND o.isActive = true ")
-    Integer countCancelledOrders( @Param("from") Date from, @Param("to") Date to );
 
     @Query(" SELECT COUNT(o) FROM Orders o WHERE o.status = 'DELIVERED' AND o.orderDate BETWEEN :from AND :to AND o.isActive = true ")
-    Integer countCompletedOrdersBetweenDates( @Param("from") Date from, @Param("to") Date to );
+    Integer countCompletedOrdersBetweenDates(@Param("from") LocalDateTime from, @Param("to") LocalDateTime to);
 
     @Query(value = " SELECT HOUR(o.order_date) AS orderHour, COUNT(*) AS totalOrders FROM orders o WHERE o.is_active = true GROUP BY HOUR(o.order_date) ORDER BY totalOrders DESC ", nativeQuery = true)
     List<Object[]> getBusiestHours();
+
+    @Query(" SELECT COUNT(o) FROM Orders o WHERE o.restaurant.id = :restaurantId AND o.createdDate BETWEEN :fromDate AND :toDate AND o.isActive = true ")
+    Integer countRestaurantOrdersBetweenDates(@Param("restaurantId") Integer restaurantId, @Param("fromDate") LocalDateTime fromDate, @Param("toDate") LocalDateTime toDate);
+
+    @Query(" SELECT COALESCE(SUM(o.deliveryFee), 0) FROM Orders o JOIN Delivery d ON d.orders.id = o.id WHERE d.deliveryDriver.id = :driverId AND o.createdDate BETWEEN :fromDate AND :toDate AND o.status = 'DELIVERED' AND o.isActive = true ")
+    Double getDriverEarnings(@Param("driverId") Integer driverId, @Param("fromDate") LocalDateTime fromDate, @Param("toDate") LocalDateTime toDate);
+
+    @Query(" SELECT COUNT(o) FROM Orders o WHERE o.status = 'CANCELLED' AND o.createdDate BETWEEN :fromDate AND :toDate AND o.isActive = true ")
+    Integer countCancelledOrders(@Param("fromDate") LocalDateTime fromDate, @Param("toDate") LocalDateTime toDate);
+
+    @Query(" SELECT COUNT(o) FROM Orders o WHERE o.status = 'DELIVERED' AND o.createdDate BETWEEN :fromDate AND :toDate AND o.isActive = true ")
+    Integer countCompletedOrders( @Param("fromDate") LocalDateTime fromDate, @Param("toDate") LocalDateTime toDate );
 
 }
