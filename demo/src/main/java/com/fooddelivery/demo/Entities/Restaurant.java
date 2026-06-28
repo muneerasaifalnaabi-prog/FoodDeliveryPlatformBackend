@@ -31,6 +31,8 @@ public class Restaurant extends BaseEntity {
     private List<MenuItem> menuItems;
     @OneToMany()
     private List<ComboMeal> comboMeals;
+    @OneToMany
+    private List<RestaurantLocation> restaurantLocations;
 
 
 }
