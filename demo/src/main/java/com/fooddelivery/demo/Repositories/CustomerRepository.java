@@ -1,6 +1,7 @@
 package com.fooddelivery.demo.Repositories;
 
 import com.fooddelivery.demo.Entities.Customer;
+import com.fooddelivery.demo.Entities.Orders;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -32,4 +33,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
 
     @Query(" SELECT c FROM Customer c WHERE c.isActive = true ORDER BY c.loyaltyPoints DESC ")
     List<Customer> findTopLoyaltyCustomers(Pageable pageable);
+
+
+
 }

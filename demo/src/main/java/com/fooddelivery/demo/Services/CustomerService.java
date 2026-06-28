@@ -24,7 +24,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -233,11 +235,13 @@ public class CustomerService {
     //****========
     //get customer orders by status,date from to ,page and size
     //==========****
-    public Page<OrdersResponseDTO> getCustomerOrders(Integer customerId, String status, Date from, Date to, int page, int size) {
+    public Page<OrdersResponseDTO> getCustomerOrders(Integer customerId, String status, String from, String to, int page, int size) {
         customerRepository.findCustomerById(customerId).orElseThrow(() -> ResourceNotFoundException.notFound("Customer", customerId));
         Pageable pageable = PageRequest.of(page, size);
-        Page<Orders> orders = ordersRepository.findCustomerOrdersWithFilters(customerId, status, from, to, pageable);
-        return orders.map(OrdersResponseDTO::fromEntity);
+        LocalDateTime fromDate = LocalDate.parse(from) .atStartOfDay();
+        LocalDateTime toDate = LocalDate.parse(to) .atTime(LocalTime.MAX);
+        Page<Orders> orders = ordersRepository.findCustomerOrdersWithFilters( customerId, status, fromDate, toDate, pageable );
+        return orders.map( OrdersResponseDTO::fromEntity );
     }
     //****========
     //patch customer if it needed to update some fields in profile

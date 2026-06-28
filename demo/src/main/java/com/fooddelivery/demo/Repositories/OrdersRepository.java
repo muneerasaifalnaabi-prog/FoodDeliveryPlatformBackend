@@ -56,7 +56,7 @@ public interface OrdersRepository extends JpaRepository<Orders, Integer> {
     BigDecimal getPlatformDailySummary(@Param("date") LocalDate date);
 
     @Query("SELECT o FROM Orders o WHERE o.customer.id = :customerId AND o.status = :status AND o.orderDate BETWEEN :from AND :to AND o.isActive = true ")
-    Page<Orders> findCustomerOrdersWithFilters(@Param("customerId") Integer customerId, @Param("status") String status, @Param("from") Date from, @Param("to") Date to, Pageable pageable);
+    Page<Orders> findCustomerOrdersWithFilters(@Param("customerId") Integer customerId, @Param("status") String status, @Param("from") LocalDateTime from, @Param("to") LocalDateTime to, Pageable pageable);
 
     @Query("SELECT SUM(o.totalAmount) FROM Orders o WHERE o.restaurant.id = :restaurantId AND o.status = 'DELIVERED'AND o.isActive = true")
     Double getRestaurantTotalRevenue(@Param("restaurantId") Integer restaurantId);

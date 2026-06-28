@@ -79,7 +79,7 @@ public class CustomerController {
     }
 
     @GetMapping("/{id}/orders")
-    public ResponseEntity<Page<OrdersResponseDTO>> getCustomerOrders(@PathVariable Integer id, @RequestParam(required = false) String status, @RequestParam(required = false) Date from, @RequestParam(required = false) Date to, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "5") Integer size) {
+    public ResponseEntity<Page<OrdersResponseDTO>> getCustomerOrders(@PathVariable Integer id, @RequestParam(required = false) String status, @RequestParam(required = false) String from, @RequestParam(required = false) String to, @RequestParam(defaultValue = "0") Integer page, @RequestParam(defaultValue = "5") Integer size) {
         return ResponseEntity.ok(customerService.getCustomerOrders(id, status, from, to, page, size));
     }
 
@@ -92,4 +92,5 @@ public class CustomerController {
     public ResponseEntity<CustomerResponseDTO> patchCustomer(@PathVariable Integer id,@Valid @RequestBody CustomerPatchDTO dto) {
         return ResponseEntity.ok(customerService.patchCustomer(id, dto));
     }
+
 }
