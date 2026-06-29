@@ -10,10 +10,7 @@ import com.fooddelivery.demo.dto.RequestDTO.OrderItemRequestDTO;
 import com.fooddelivery.demo.dto.ResponseDTO.CorporateOrderResponseDTO;
 import com.fooddelivery.demo.dto.ResponseDTO.OrdersResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -25,276 +22,231 @@ public class OrderService {
 
     @Autowired
     private OrdersRepository ordersRepository;
+
     @Autowired
     private OrderItemRepository orderItemRepository;
+
     @Autowired
     private CustomerRepository customerRepository;
+
     @Autowired
     private RestaurantRepository restaurantRepository;
+
     @Autowired
     private MenuItemRepository menuItemRepository;
+
     @Autowired
     private CorporateOrderRepository corporateOrderRepository;
+
     @Autowired
-    private  DeliveryDriverRepository deliveryRepository;
+    private DeliveryDriverRepository deliveryRepository;
 
     //****========
     //Create Order
     //==========****
     public OrdersResponseDTO createOrder(Integer customerId, Integer restaurantId, List<OrderItemRequestDTO> items) {
-        Customer customer = customerRepository.findCustomerById(customerId).orElseThrow(() -> ResourceNotFoundException.notFound("Customer", customerId));
-        Restaurant restaurant = restaurantRepository.findRestaurantById(restaurantId).orElseThrow(() -> ResourceNotFoundException.notFound("Restaurant", restaurantId));
-
-        Orders order = new Orders();
-        order.setCustomer(customer);
-        order.setRestaurant(restaurant);
-        order.setStatus("PENDING");
-        order.setOrderDate(LocalDateTime.now());
-        order.setCreatedDate(LocalDateTime.now());
-        order.setUpdatedDate(LocalDateTime.now());
-        order.setIsActive(true);
-        order.setOrderCode(HelperUtils.generateCode("ORD"));
-
-        Orders savedOrder = ordersRepository.save(order);
-
-
-        List<OrderItem> orderItems = new ArrayList<>();
-        BigDecimal subtotal = BigDecimal.ZERO;
-
-        for (OrderItemRequestDTO dto : items) {
-            if (dto.getQuantity() <= 0) {
-                throw InvalidOrderStateException.invalidState("Quantity must be greater than zero.");
-            }
-
-            MenuItem menuItem = menuItemRepository.findMenuItemById(dto.getMenuItemId()).orElseThrow(() -> ResourceNotFoundException.notFound("Menu Item", dto.getMenuItemId()));
-
-            if (!menuItem.getRestaurant().getId().equals(restaurantId)) {
-                throw InvalidOrderStateException.invalidState("All menu items must belong to the same restaurant.");
-            }
-
-            OrderItem item = new OrderItem();
-            item.setOrders(savedOrder);
-            item.setMenuItem(menuItem);
-            item.setQuantity(dto.getQuantity());
-            BigDecimal itemPrice = HelperUtils.calculateItemTotal(menuItem.getPrice(), dto.getQuantity());
-            item.setTotalPrice(itemPrice);
-            item.setCreatedDate(LocalDateTime.now());
-            item.setUpdatedDate(LocalDateTime.now());
-            item.setIsActive(true);
-            subtotal = subtotal.add(itemPrice);
-
-            orderItemRepository.save(item);
-            orderItems.add(item);
-        }
-
-        if (subtotal.compareTo(restaurant.getMinOrderAmount()) < 0) {
-            throw new InvalidOrderStateException("Order does not meet the minimum order amount.");
-        }
-        BigDecimal total = subtotal.add(restaurant.getDeliveryFee());
-        savedOrder.setSubtotal(subtotal);
-        savedOrder.setTotalAmount(total);
-        savedOrder.setOrderItems(orderItems);
-        savedOrder.setUpdatedDate(LocalDateTime.now());
-
-        Orders updatedOrder = ordersRepository.save(savedOrder);
-        return OrdersResponseDTO.fromEntity(updatedOrder);
-    }
-
-    //****========
-    //Create Order With note
-    //==========****
-    public OrdersResponseDTO createOrder(Integer customerId, Integer restaurantId, List<OrderItemRequestDTO> items, String notes) {
 
         if (items == null || items.isEmpty()) {
             throw new InvalidOrderStateException("Order must contain at least one item.");
         }
 
         Customer customer = customerRepository.findCustomerById(customerId).orElseThrow(() -> ResourceNotFoundException.notFound("Customer", customerId));
-        Restaurant restaurant = restaurantRepository.findRestaurantById(restaurantId).orElseThrow(() -> ResourceNotFoundException.notFound("Restaurant", restaurantId));
 
-        if (!restaurant.getAcceptingOrders()) {
-            throw InvalidOrderStateException.invalidState("Restaurant is currently not accepting orders.");
-        }
+        Restaurant restaurant = restaurantRepository.findRestaurantById(restaurantId).orElseThrow(() -> ResourceNotFoundException.notFound("Restaurant", restaurantId));
 
         Orders order = new Orders();
         order.setCustomer(customer);
         order.setRestaurant(restaurant);
         order.setStatus("PENDING");
-        order.setDeliveryNotes(notes);
         order.setOrderDate(LocalDateTime.now());
         order.setCreatedDate(LocalDateTime.now());
         order.setUpdatedDate(LocalDateTime.now());
         order.setIsActive(true);
         order.setOrderCode(HelperUtils.generateCode("ORD"));
 
-        Orders savedOrder = ordersRepository.save(order);
-
+        // ⚠️ IMPORTANT: never leave null
+        order.setDeliveryFee(restaurant.getDeliveryFee() != null ? restaurant.getDeliveryFee() : BigDecimal.ZERO);
 
         List<OrderItem> orderItems = new ArrayList<>();
         BigDecimal subtotal = BigDecimal.ZERO;
 
         for (OrderItemRequestDTO dto : items) {
-            if (dto.getQuantity() <= 0) {
-                throw InvalidOrderStateException.invalidState("Quantity must be greater than zero.");
-            }
 
             MenuItem menuItem = menuItemRepository.findMenuItemById(dto.getMenuItemId()).orElseThrow(() -> ResourceNotFoundException.notFound("Menu Item", dto.getMenuItemId()));
 
-            if (!menuItem.getRestaurant().getId().equals(restaurantId)) {
-                throw InvalidOrderStateException.invalidState("All menu items must belong to the same restaurant.");
-            }
+            BigDecimal itemTotal = menuItem.getPrice().multiply(BigDecimal.valueOf(dto.getQuantity()));
 
             OrderItem item = new OrderItem();
-            item.setOrders(savedOrder);
+            item.setOrders(order);
             item.setMenuItem(menuItem);
             item.setQuantity(dto.getQuantity());
-            BigDecimal itemPrice = HelperUtils.calculateItemTotal(menuItem.getPrice(), dto.getQuantity());
-            item.setTotalPrice(itemPrice);
+            item.setUnitPrice(menuItem.getPrice());
+            item.setTotalPrice(itemTotal);
             item.setCreatedDate(LocalDateTime.now());
             item.setUpdatedDate(LocalDateTime.now());
             item.setIsActive(true);
-            subtotal = subtotal.add(itemPrice);
 
-            orderItemRepository.save(item);
             orderItems.add(item);
+            subtotal = subtotal.add(itemTotal);
         }
 
-        if (subtotal.compareTo(restaurant.getMinOrderAmount()) < 0) {
-            throw new InvalidOrderStateException("Order does not meet the minimum order amount.");
-        }
-        BigDecimal total = subtotal.add(restaurant.getDeliveryFee());
-        savedOrder.setSubtotal(subtotal);
-        savedOrder.setTotalAmount(total);
-        savedOrder.setOrderItems(orderItems);
-        savedOrder.setUpdatedDate(LocalDateTime.now());
+        // ✔ SET EVERYTHING BEFORE SAVE
+        order.setOrderItems(orderItems);
+        order.setSubtotal(subtotal);
 
-        Orders updatedOrder = ordersRepository.save(savedOrder);
-        return OrdersResponseDTO.fromEntity(updatedOrder);
+        BigDecimal total = subtotal.add(order.getDeliveryFee()).subtract(BigDecimal.ZERO);
+
+        order.setTotalAmount(total);
+
+        // ✔ SINGLE SAVE ONLY
+        Orders savedOrder = ordersRepository.save(order);
+
+        return OrdersResponseDTO.fromEntity(savedOrder);
     }
 
     //****========
-    //Add Menu item to order
+    //Create Order With notesw
+    //==========****
+    public OrdersResponseDTO createOrder(Integer customerId, Integer restaurantId, List<OrderItemRequestDTO> items, String notes) {
+
+        OrdersResponseDTO response = createOrder(customerId, restaurantId, items);
+        Orders order = ordersRepository.findOrderById(response.getId()).orElseThrow(() -> ResourceNotFoundException.notFound("Order", response.getId()));
+
+        order.setDeliveryNotes(notes);
+        order.setUpdatedDate(LocalDateTime.now());
+        return OrdersResponseDTO.fromEntity(ordersRepository.save(order));
+    }
+
+    //****========
+    //Add Item
     //==========****
     public OrdersResponseDTO addMenuItemToOrder(Integer orderId, Integer menuItemId, int quantity) {
+
         Orders order = ordersRepository.findOrderById(orderId).orElseThrow(() -> ResourceNotFoundException.notFound("Order", orderId));
-        MenuItem menuItem = menuItemRepository.findMenuItemById(menuItemId).orElseThrow(() -> ResourceNotFoundException.notFound("Menu Item", menuItemId));
         if (!order.getStatus().equals("PENDING")) {
-            throw InvalidOrderStateException.invalidState("Cannot add items to an order that is not PENDING. Current status: " + order.getStatus());
+            throw InvalidOrderStateException.invalidState("Only PENDING orders can be modified.");
         }
+
         if (quantity <= 0) {
             throw InvalidOrderStateException.invalidState("Quantity must be greater than zero.");
         }
+
+        MenuItem menuItem = menuItemRepository.findMenuItemById(menuItemId).orElseThrow(() -> ResourceNotFoundException.notFound("Menu Item", menuItemId));
+
         if (!menuItem.getRestaurant().getId().equals(order.getRestaurant().getId())) {
-            throw InvalidOrderStateException.invalidState("Menu item belongs to a different restaurant.");
+            throw InvalidOrderStateException.invalidState("Menu item belongs to another restaurant.");
         }
+
+        BigDecimal itemTotal = menuItem.getPrice().multiply(BigDecimal.valueOf(quantity));
+
         OrderItem item = new OrderItem();
         item.setOrders(order);
         item.setMenuItem(menuItem);
         item.setQuantity(quantity);
-        BigDecimal itemPrice = HelperUtils.calculateItemTotal(menuItem.getPrice(), quantity);
-        item.setTotalPrice(itemPrice);
+        item.setUnitPrice(menuItem.getPrice());
+        item.setTotalPrice(itemTotal);
         item.setCreatedDate(LocalDateTime.now());
         item.setUpdatedDate(LocalDateTime.now());
         item.setIsActive(true);
+
         OrderItem savedItem = orderItemRepository.save(item);
+
         if (order.getOrderItems() == null) {
             order.setOrderItems(new ArrayList<>());
         }
+
         order.getOrderItems().add(savedItem);
-        BigDecimal updatedSubtotal = order.getSubtotal() == null ? itemPrice : order.getSubtotal().add(itemPrice);
-        order.setSubtotal(updatedSubtotal);
-        BigDecimal deliveryFee = order.getRestaurant().getDeliveryFee();
+        BigDecimal subtotal = order.getSubtotal() != null ? order.getSubtotal().add(itemTotal) : itemTotal;
+
+        BigDecimal deliveryFee = order.getDeliveryFee() != null ? order.getDeliveryFee() : BigDecimal.ZERO;
+
         BigDecimal discount = order.getDiscountAmount() != null ? order.getDiscountAmount() : BigDecimal.ZERO;
-        BigDecimal updatedTotal = updatedSubtotal.add(deliveryFee).subtract(discount);
-        order.setTotalAmount(updatedTotal);
+
+        BigDecimal total = subtotal.add(deliveryFee).subtract(discount);
+        order.setSubtotal(subtotal);
+        order.setTotalAmount(total);
         order.setUpdatedDate(LocalDateTime.now());
-        Orders updatedOrder = ordersRepository.save(order);
-        return OrdersResponseDTO.fromEntity(updatedOrder);
+
+        return OrdersResponseDTO.fromEntity(ordersRepository.save(order));
     }
 
     //****========
-    //Remove menu item from order
+    //Remove item
     //==========****
     public OrdersResponseDTO removeMenuItemFromOrder(Integer orderId, Integer orderItemId) {
+
         Orders order = ordersRepository.findOrderById(orderId).orElseThrow(() -> ResourceNotFoundException.notFound("Order", orderId));
 
-        //only PENDING orders can have items removed
-        if (!(order.getStatus()).equals("PENDING")) {
-            throw InvalidOrderStateException.invalidState("Cannot remove items from an order that is not PENDING. Current status: " + order.getStatus());
+        if (!order.getStatus().equals("PENDING")) {
+            throw InvalidOrderStateException.invalidState("Only PENDING orders can be modified.");
         }
         OrderItem item = orderItemRepository.findOrderItemById(orderItemId).orElseThrow(() -> ResourceNotFoundException.notFound("OrderItem", orderItemId));
 
-        // verify this item actually belongs to the order the caller specified —
-        if (item.getOrders() == null || !item.getOrders().getId().equals(orderId)) {
+        if (!item.getOrders().getId().equals(orderId)) {
             throw ResourceNotFoundException.notFound("OrderItem", orderItemId);
         }
 
-        //  an already-removed item can't be removed again — prevents
         if (!(item.getIsActive()).equals(Boolean.TRUE)) {
-            throw ResourceNotFoundException.notFound("OrderItem", orderItemId);
+            throw InvalidOrderStateException.invalidState("Item already removed.");
         }
 
         item.setIsActive(false);
         item.setUpdatedDate(LocalDateTime.now());
         orderItemRepository.save(item);
+        BigDecimal subtotal = order.getSubtotal().subtract(item.getTotalPrice());
 
-        BigDecimal updatedTotal = order.getTotalAmount().subtract(item.getTotalPrice());
-        order.setTotalAmount(updatedTotal);
+        BigDecimal deliveryFee = order.getDeliveryFee() != null ? order.getDeliveryFee() : BigDecimal.ZERO;
+
+        BigDecimal discount = order.getDiscountAmount() != null ? order.getDiscountAmount() : BigDecimal.ZERO;
+
+        BigDecimal total = subtotal.add(deliveryFee).subtract(discount);
+        order.setSubtotal(subtotal);
+        order.setTotalAmount(total);
+        order.setUpdatedDate(LocalDateTime.now());
+        return OrdersResponseDTO.fromEntity(ordersRepository.save(order));
+    }
+
+    //****========
+    //Apply Discount
+    //==========****
+    public OrdersResponseDTO applyDiscount(Integer orderId, double discountAmount) {
+
+        Orders order = ordersRepository.findOrderById(orderId).orElseThrow(() -> ResourceNotFoundException.notFound("Order", orderId));
+
+        if (discountAmount < 0) {
+            throw new IllegalArgumentException("Discount cannot be negative.");
+        }
+
+        BigDecimal subtotal = order.getSubtotal() != null ? order.getSubtotal() : BigDecimal.ZERO;
+
+        BigDecimal deliveryFee = order.getDeliveryFee() != null ? order.getDeliveryFee() : BigDecimal.ZERO;
+
+        BigDecimal totalBeforeDiscount = subtotal.add(deliveryFee);
+        BigDecimal discount = BigDecimal.valueOf(discountAmount);
+
+        if (discount.compareTo(totalBeforeDiscount) > 0) {
+            throw new IllegalArgumentException("Discount exceeds total amount.");
+        }
+
+        BigDecimal total = totalBeforeDiscount.subtract(discount);
+        order.setDiscountAmount(discount);
+        order.setTotalAmount(total);
         order.setUpdatedDate(LocalDateTime.now());
 
         return OrdersResponseDTO.fromEntity(ordersRepository.save(order));
     }
-    //****========
-    //Apply Discount...
-    //==========****
-
-    public OrdersResponseDTO applyDiscount(Integer orderId, double discountAmount) {
-        Orders order = ordersRepository.findOrderById(orderId).orElseThrow(() -> ResourceNotFoundException.notFound("Order", orderId));
-
-        if (discountAmount < 0) {
-            throw new IllegalArgumentException("Discount amount cannot be negative.");
-        }
-
-        BigDecimal subtotal = order.getSubtotal() != null
-                ? order.getSubtotal()
-                : BigDecimal.ZERO;
-
-        BigDecimal deliveryFee = order.getRestaurant().getDeliveryFee() != null
-                ? order.getRestaurant().getDeliveryFee()
-                : BigDecimal.ZERO;
-
-        BigDecimal maxDiscount = subtotal.add(deliveryFee);
-
-        if (BigDecimal.valueOf(discountAmount)
-                .compareTo(maxDiscount) > 0) {
-            throw new IllegalArgumentException(
-                    "Discount amount exceeds payable total.");
-        }
-        BigDecimal total = subtotal.add(deliveryFee).subtract(BigDecimal.valueOf(discountAmount));
-
-        order.setDiscountAmount(
-                BigDecimal.valueOf(discountAmount)
-        );
-
-        order.setTotalAmount(total);
-
-        order.setUpdatedDate(
-                LocalDateTime.now()
-        );
-
-        Orders updatedOrder =
-                ordersRepository.save(order);
-
-        return OrdersResponseDTO.fromEntity(
-                updatedOrder
-        );
-    }
-
 
     //****========
-    //Update Order status
+    //Update Status
     //==========****
     public OrdersResponseDTO updateOrderStatus(Integer orderId, String newStatus) {
+
+        List<String> validStatuses = Arrays.asList("PENDING", "PREPARING", "PAID", "ON_THE_WAY", "DELIVERED", "CANCELLED");
+
+        if (!validStatuses.contains(newStatus)) {
+            throw InvalidOrderStateException.invalidState("Invalid order status.");
+        }
+
         Orders order = ordersRepository.findOrderById(orderId).orElseThrow(() -> ResourceNotFoundException.notFound("Order", orderId));
 
         order.setStatus(newStatus);
@@ -306,42 +258,43 @@ public class OrderService {
     //Cancel order
     //==========****
     public String cancelOrder(Integer orderId) {
+
         Orders order = ordersRepository.findOrderById(orderId).orElseThrow(() -> ResourceNotFoundException.notFound("Order", orderId));
 
         if (!order.getStatus().equals("PENDING")) {
             throw InvalidOrderStateException.invalidState("Only pending orders can be cancelled.");
         }
+
         order.setStatus("CANCELLED");
         order.setUpdatedDate(LocalDateTime.now());
-
         ordersRepository.save(order);
         return "Order cancelled successfully";
     }
 
+    //****========
+    //Calculate totalorder
+    //==========****
     public OrdersResponseDTO calculateOrderTotals(Integer orderId) {
-
         Orders order = ordersRepository.findOrderById(orderId).orElseThrow(() -> ResourceNotFoundException.notFound("Order", orderId));
-        //calculate subtotal price by getTotalPrice ,if discount amount = null,make it 0
+
         BigDecimal subtotal = BigDecimal.ZERO;
         for (OrderItem item : order.getOrderItems()) {
-            if ((item.getIsActive()).equals(Boolean.TRUE)) {
-                subtotal = subtotal.add(item.getTotalPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
+            if ((item.getIsActive().equals(Boolean.TRUE))) {
+                subtotal = subtotal.add(item.getTotalPrice());
             }
         }
 
-        BigDecimal deliveryFee = order.getRestaurant().getDeliveryFee();
+        BigDecimal deliveryFee = order.getDeliveryFee() != null ? order.getDeliveryFee() : BigDecimal.ZERO;
+
         BigDecimal discount = order.getDiscountAmount() != null ? order.getDiscountAmount() : BigDecimal.ZERO;
 
         BigDecimal total = subtotal.add(deliveryFee).subtract(discount);
-
         order.setSubtotal(subtotal);
         order.setTotalAmount(total);
         order.setUpdatedDate(LocalDateTime.now());
-
         return OrdersResponseDTO.fromEntity(ordersRepository.save(order));
     }
 
-    //******** check this method later **********
     public CorporateOrderResponseDTO placeCorporateOrder(CorporateOrderRequestDTO dto) {
 
         if (dto.getItems() == null || dto.getItems().isEmpty()) {
@@ -351,22 +304,22 @@ public class OrderService {
         Restaurant restaurant = restaurantRepository.findRestaurantById(dto.getRestaurantId()).orElseThrow(() -> ResourceNotFoundException.notFound("Restaurant", dto.getRestaurantId()));
 
         if (!Boolean.TRUE.equals(restaurant.getAcceptingOrders())) {
-            throw InvalidOrderStateException.invalidState("Restaurant is currently not accepting orders.");
+            throw InvalidOrderStateException.invalidState("Restaurant is not accepting orders.");
         }
 
         CorporateOrder corporateOrder = new CorporateOrder();
+
         corporateOrder.setCompanyName(dto.getCompanyName());
         corporateOrder.setCostCenter(dto.getCostCenter());
         corporateOrder.setRestaurant(restaurant);
+
         corporateOrder.setStatus("PENDING");
         corporateOrder.setCorporateCode(HelperUtils.generateCode("CORP"));
+        corporateOrder.setOrderDate(LocalDateTime.now());
         corporateOrder.setCreatedDate(LocalDateTime.now());
         corporateOrder.setUpdatedDate(LocalDateTime.now());
         corporateOrder.setIsActive(true);
-
-        CorporateOrder savedOrder = corporateOrderRepository.save(corporateOrder);
-        List<OrderItem> orderItems = new ArrayList<>();
-
+        List<OrderItem> items = new ArrayList<>();
         BigDecimal subtotal = BigDecimal.ZERO;
         for (OrderItemRequestDTO itemDTO : dto.getItems()) {
             if (itemDTO.getQuantity() <= 0) {
@@ -375,38 +328,35 @@ public class OrderService {
 
             MenuItem menuItem = menuItemRepository.findMenuItemById(itemDTO.getMenuItemId()).orElseThrow(() -> ResourceNotFoundException.notFound("Menu Item", itemDTO.getMenuItemId()));
 
-            if (!menuItem.getRestaurant().getId().equals(dto.getRestaurantId())) {
-                throw InvalidOrderStateException.invalidState("All items must belong to the same restaurant.");
+            if (menuItem.getRestaurant() == null || !menuItem.getRestaurant().getId().equals(dto.getRestaurantId())) {
+                throw InvalidOrderStateException.invalidState("Menu item does not belong to restaurant.");
             }
 
             OrderItem item = new OrderItem();
-            item.setCorporateOrder(savedOrder);
+            item.setCorporateOrder(corporateOrder);
             item.setMenuItem(menuItem);
             item.setQuantity(itemDTO.getQuantity());
 
-            BigDecimal itemPrice = HelperUtils.calculateItemTotal(menuItem.getPrice(), itemDTO.getQuantity());
-            item.setTotalPrice(itemPrice);
+            BigDecimal itemTotal = menuItem.getPrice().multiply(BigDecimal.valueOf(itemDTO.getQuantity()));
+            item.setTotalPrice(itemTotal);
             item.setCreatedDate(LocalDateTime.now());
             item.setUpdatedDate(LocalDateTime.now());
             item.setIsActive(true);
-
-            subtotal = subtotal.add(itemPrice);
-            // CorporateOrderRepository.sa
-            orderItems.add(item);
+            items.add(item);
+            subtotal = subtotal.add(itemTotal);
         }
 
         if (subtotal.compareTo(restaurant.getMinOrderAmount()) < 0) {
-            throw InvalidOrderStateException.invalidState("Corporate order does not meet minimum order amount.");
+            throw InvalidOrderStateException.invalidState("Below minimum order amount.");
         }
 
-        BigDecimal total = subtotal.add(restaurant.getDeliveryFee());
+        corporateOrder.setCorporateOrderItems(items);
 
-        savedOrder.setTotalAmount(total);
-        savedOrder.setCorporateOrderItems(orderItems);
-        savedOrder.setUpdatedDate(LocalDateTime.now());
+        BigDecimal total = subtotal.add(restaurant.getDeliveryFee() != null ? restaurant.getDeliveryFee() : BigDecimal.ZERO);
 
-        return CorporateOrderResponseDTO.fromEntity(corporateOrderRepository.save(savedOrder));
-
+        corporateOrder.setTotalAmount(total);
+        CorporateOrder saved = corporateOrderRepository.save(corporateOrder);
+        return CorporateOrderResponseDTO.fromEntity(saved);
     }
 
     public OrdersResponseDTO getOrderById(Integer orderId) {
@@ -506,57 +456,48 @@ public class OrderService {
         newOrder.setOrderItems(newItems);
         Orders savedOrder = ordersRepository.save(newOrder);
 
-        return OrdersResponseDTO.fromEntity(savedOrder
-        );
+        return OrdersResponseDTO.fromEntity(savedOrder);
     }
 
 
-        public Page<OrdersResponseDTO> getCustomerOrdersFiltered(Integer customerId, String status, String from, String to, int page, int size) {
+    public Page<OrdersResponseDTO> getCustomerOrdersFiltered(Integer customerId, String status, String from, String to, int page, int size) {
 
-            customerRepository.findCustomerById(customerId).orElseThrow(() ->ResourceNotFoundException.notFound("Customer", customerId));
+        customerRepository.findCustomerById(customerId).orElseThrow(() -> ResourceNotFoundException.notFound("Customer", customerId));
 
-            Pageable pageable = PageRequest.of(page, size);
-            LocalDateTime fromDate = null;
-            LocalDateTime toDate = null;
+        Pageable pageable = PageRequest.of(page, size);
+        LocalDateTime fromDate = null;
+        LocalDateTime toDate = null;
 
-            if (from != null && !from.isBlank()) {
-                fromDate = LocalDateTime.parse(from + "T00:00:00");
-            }
-
-            if (to != null && !to.isBlank()) {
-                toDate = LocalDateTime.parse(to + "T23:59:59");
-            }
-
-            Page<Orders> orders = ordersRepository.filterCustomerOrders(customerId, status, fromDate, toDate, pageable);
-
-            List<OrdersResponseDTO> response =new ArrayList<>();
-
-            for (Orders order : orders.getContent()) {
-                response.add(OrdersResponseDTO.fromEntity(order));
-            }
-
-            return new PageImpl<>(
-                    response,
-                    pageable,
-                    orders.getTotalElements()
-            );
+        if (from != null && !from.isBlank()) {
+            fromDate = LocalDateTime.parse(from + "T00:00:00");
         }
+
+        if (to != null && !to.isBlank()) {
+            toDate = LocalDateTime.parse(to + "T23:59:59");
+        }
+
+        Page<Orders> orders = ordersRepository.filterCustomerOrders(customerId, status, fromDate, toDate, pageable);
+
+        List<OrdersResponseDTO> response = new ArrayList<>();
+
+        for (Orders order : orders.getContent()) {
+            response.add(OrdersResponseDTO.fromEntity(order));
+        }
+
+        return new PageImpl<>(response, pageable, orders.getTotalElements());
+    }
 
     public Map<String, Object> getEstimatedDeliveryTime(Integer orderId) {
 
         Orders order = ordersRepository.findOrderById(orderId).orElseThrow(() -> ResourceNotFoundException.notFound("Order", orderId));
-        Delivery delivery = deliveryRepository.findDeliveryByOrderId(orderId).orElseThrow(() ->ResourceNotFoundException.notFound("Delivery", orderId));
+        Delivery delivery = deliveryRepository.findDeliveryByOrderId(orderId).orElseThrow(() -> ResourceNotFoundException.notFound("Delivery", orderId));
 
         DeliveryDriver driver = delivery.getDeliveryDriver();
 
         double restaurantLat = 23.5880;
         double restaurantLng = 58.3829;
 
-        double distance = HelperUtils.calculateDistance(
-                        restaurantLat,
-                        restaurantLng,
-                        driver.getCurrentLat(),
-                        driver.getCurrentLng());
+        double distance = HelperUtils.calculateDistance(restaurantLat, restaurantLng, driver.getCurrentLat(), driver.getCurrentLng());
 
         double averageSpeedKmPerHour = 40.0;
         double etaHours = distance / averageSpeedKmPerHour;
@@ -570,6 +511,4 @@ public class OrderService {
 
         return result;
     }
-
-
 }

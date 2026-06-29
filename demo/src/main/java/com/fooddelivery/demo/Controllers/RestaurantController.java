@@ -1,12 +1,15 @@
 package com.fooddelivery.demo.Controllers;
 
+import com.fooddelivery.demo.Repositories.RestaurantOwnerRepository;
 import com.fooddelivery.demo.Services.OrderService;
 import com.fooddelivery.demo.Services.RestaurantService;
 import com.fooddelivery.demo.dto.RequestDTO.ComboMealRequestDTO;
 import com.fooddelivery.demo.dto.RequestDTO.MenuItemRequestDTO;
+import com.fooddelivery.demo.dto.RequestDTO.RestaurantOwnerRequestDTO;
 import com.fooddelivery.demo.dto.RequestDTO.RestaurantRequestDTO;
 import com.fooddelivery.demo.dto.ResponseDTO.ComboMealResponseDTO;
 import com.fooddelivery.demo.dto.ResponseDTO.MenuItemResponseDTO;
+import com.fooddelivery.demo.dto.ResponseDTO.RestaurantOwnerResponseDTO;
 import com.fooddelivery.demo.dto.ResponseDTO.RestaurantResponseDTO;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +27,11 @@ public class RestaurantController {
     private RestaurantService restaurantService;
     @Autowired
     private OrderService orderService;
+
+    @PostMapping("/owners")
+    public ResponseEntity<RestaurantOwnerResponseDTO> createOwnerForRestaurant(@RequestBody RestaurantOwnerRequestDTO dto) {
+        return new ResponseEntity<>(restaurantService.createRestaurantOwner(dto), HttpStatus.CREATED);
+    }
 
     @PostMapping("/owner/{ownerId}")
     public ResponseEntity<RestaurantResponseDTO> createRestaurant(@PathVariable Integer ownerId, @Valid @RequestBody RestaurantRequestDTO dto) {
@@ -108,4 +116,6 @@ public class RestaurantController {
     public ResponseEntity<List<MenuItemResponseDTO>> searchMenuItems(@RequestParam String keyword, @RequestParam Integer minCalories, @RequestParam Integer maxCalories) {
         return ResponseEntity.ok(restaurantService.searchMenuItems(keyword, minCalories, maxCalories));
     }
+
+
 }

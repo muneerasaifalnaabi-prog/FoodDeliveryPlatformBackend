@@ -42,31 +42,22 @@ public class ReportingController {
     }
 
     @GetMapping("/platform/daily-summary")
-    public ResponseEntity<Map<String, Object>> getPlatformDailySummary(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+    public ResponseEntity<Map<String, Object>> getPlatformDailySummary(@RequestParam LocalDate date) {
         return ResponseEntity.ok(reportingService.getPlatformDailySummary(date));
     }
 
     @GetMapping("/revenue/restaurant/{restaurantId}/range")
-    public ResponseEntity<Map<String, Object>> getRestaurantRevenueBetweenDates(
-            @PathVariable Integer restaurantId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+    public ResponseEntity<Map<String, Object>> getRestaurantRevenueBetweenDates(@PathVariable Integer restaurantId, LocalDate from, @RequestParam LocalDate to) {
         return ResponseEntity.ok(reportingService.getRestaurantRevenue(restaurantId, from, to));
     }
 
     @GetMapping("/drivers/{driverId}/earnings")
-    public ResponseEntity<Map<String, Object>> getDriverEarnings(
-            @PathVariable Integer driverId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+    public ResponseEntity<Map<String, Object>> getDriverEarnings(@PathVariable Integer driverId, @RequestParam LocalDate from, @RequestParam LocalDate to) {
         return ResponseEntity.ok(reportingService.getDriverEarnings(driverId, from, to));
     }
 
     @GetMapping("/orders/cancellation-rate")
-    public ResponseEntity<Map<String, Object>> getCancellationRate(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+    public ResponseEntity<Map<String, Object>> getCancellationRate(@RequestParam LocalDate from, @RequestParam LocalDate to) {
         return ResponseEntity.ok(reportingService.getCancellationRate(from, to));
     }
 

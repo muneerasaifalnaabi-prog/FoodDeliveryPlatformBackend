@@ -24,6 +24,6 @@ public interface ReviewRepository extends JpaRepository<Review, Integer> {
     Double getDriverAverageRating(@Param("driverId") Integer driverId);
 
     @Query(" SELECT r FROM Review r WHERE r.restaurant.id = :restaurantId AND r.isActive = true ")
-    Page<Review> findRestaurantReviews(@Param("restaurantId") Integer restaurantId, Pageable pageable);
+    List<Review> findRestaurantReviews(@Param("restaurantId") Integer restaurantId);
 
 }

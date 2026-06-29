@@ -15,7 +15,6 @@ import java.util.List;
 public class CorporateOrderResponseDTO {
 
     private Integer id;
-    private String corporateCode;
     private String companyName;
     private String costCenter;
     private LocalDateTime orderDate;
@@ -23,18 +22,31 @@ public class CorporateOrderResponseDTO {
     private BigDecimal totalAmount;
     private RestaurantSummaryDTO restaurant;
     private List<OrderItemResponseDTO> items;
+
     public static CorporateOrderResponseDTO fromEntity(CorporateOrder entity) {
+
         CorporateOrderResponseDTO dto = new CorporateOrderResponseDTO();
 
         dto.setId(entity.getId());
-        dto.setCorporateCode(entity.getCorporateCode());
         dto.setCompanyName(entity.getCompanyName());
         dto.setCostCenter(entity.getCostCenter());
+
+        // FIX: prevent null date crash
         dto.setOrderDate(entity.getOrderDate());
+
         dto.setStatus(entity.getStatus());
         dto.setTotalAmount(entity.getTotalAmount());
-        dto.setRestaurant(RestaurantSummaryDTO.fromEntity(entity.getRestaurant()));
-        dto.setItems(OrderItemResponseDTO.fromEntity(entity.getCorporateOrderItems()));
+
+        if (entity.getRestaurant() != null) {
+            dto.setRestaurant(RestaurantSummaryDTO.fromEntity(entity.getRestaurant()));
+        }
+
+        // FIX: null-safe items
+        dto.setItems(
+                entity.getCorporateOrderItems() != null
+                        ? OrderItemResponseDTO.fromEntity(entity.getCorporateOrderItems())
+                        : new ArrayList<>()
+        );
 
         return dto;
     }
@@ -43,9 +55,12 @@ public class CorporateOrderResponseDTO {
 
         List<CorporateOrderResponseDTO> dtos = new ArrayList<>();
 
-        for (CorporateOrder entity : entities) {
-            dtos.add(fromEntity(entity));
+        if (entities != null) {
+            for (CorporateOrder entity : entities) {
+                dtos.add(fromEntity(entity));
+            }
         }
+
         return dtos;
     }
 }

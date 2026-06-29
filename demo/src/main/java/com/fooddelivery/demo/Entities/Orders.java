@@ -1,15 +1,13 @@
 package com.fooddelivery.demo.Entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -29,8 +27,10 @@ public class Orders extends BaseEntity {
     private Customer customer;
     @ManyToOne
     private Restaurant restaurant;
-    @OneToMany()
-    private List<OrderItem> orderItems;
+    //@OneToMany()
+   // private List<OrderItem> orderItems;
+    @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItem> orderItems = new ArrayList<>();
     @OneToOne()
     private Delivery delivery;
     @OneToOne()

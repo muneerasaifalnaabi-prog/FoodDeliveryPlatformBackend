@@ -12,8 +12,7 @@ import java.util.Optional;
 public interface RestaurantLocationRepository extends JpaRepository<RestaurantLocation,Integer> {
     @Query(" SELECT rl FROM RestaurantLocation rl WHERE rl.isActive = true")
     List<RestaurantLocation> findAllActiveLocations();
-    @Query("SELECT rl FROM  RestaurantLocation rl WHERE rl.email = :email AND rl.isActive = true ")
-    Optional<Customer> findCustomerByEmail(@Param("email") String email);
+
 
 
 }

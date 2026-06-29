@@ -19,7 +19,6 @@ import java.util.List;
 @AllArgsConstructor
 public class CorporateOrderRequestDTO {
 
-    @NotBlank(message = "Corporate code is required")
     private String corporateCode;
 
     @NotBlank(message = "Company name is required")

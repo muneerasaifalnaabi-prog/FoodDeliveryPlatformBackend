@@ -69,6 +69,7 @@ public class CustomerService {
 
         return CustomerResponseDTO.fromEntity(customerRepository.save(customer));
     }
+
     //****========
     //add new customer with address by first check if return empty,if customer already exist or not and id address not empty.
     //==========****
@@ -99,15 +100,16 @@ public class CustomerService {
 
         return CustomerResponseDTO.fromEntity(savedCustomer);
     }
+
     //****========
     //add address for exist customer ,if not found customer return exception
     //==========****
     public CustomerAddressResponseDTO addAddress(Integer customerId, CustomerAddressRequestDTO addressDTO) {
 
         Customer customer = customerRepository.findCustomerById(customerId).orElseThrow(() -> ResourceNotFoundException.notFound("Customer", customerId));
-         if (addressDTO == null) {
-             throw InvalidOrderStateException.invalidState("Address data is required");
-         }
+        if (addressDTO == null) {
+            throw InvalidOrderStateException.invalidState("Address data is required");
+        }
 
         CustomerAddress address = addressDTO.toEntity();
 
@@ -119,6 +121,7 @@ public class CustomerService {
         return CustomerAddressResponseDTO.fromEntity(customerAddressRepository.save(address));
 
     }
+
     //****========
     //update loyalty points by add points
     //==========****
@@ -131,6 +134,7 @@ public class CustomerService {
         return CustomerResponseDTO.fromEntity(customerRepository.save(customer));
 
     }
+
     //****========
     // deduct points
     //==========****
@@ -145,6 +149,7 @@ public class CustomerService {
         customer.setUpdatedDate(LocalDateTime.now());
         return CustomerResponseDTO.fromEntity(customerRepository.save(customer));
     }
+
     //****========
     //deactivate customer that not showing in list of customer ,in database mark active to fals
     //==========****
@@ -160,6 +165,7 @@ public class CustomerService {
             return "NOT FOUND";
         }
     }
+
     //****========
     //get all active customer in this system
     //==========****
@@ -170,6 +176,7 @@ public class CustomerService {
         List<Customer> customers = customerRepository.findAllActiveCustomers();
         return CustomerResponseDTO.fromEntity(customers);
     }
+
     //****========
     //get customer by id
     //==========****
@@ -177,6 +184,7 @@ public class CustomerService {
         Customer customer = customerRepository.findCustomerById(customerId).orElseThrow(() -> ResourceNotFoundException.notFound("Customer", customerId));
         return CustomerResponseDTO.fromEntity(customer);
     }
+
     //****========
     //get customer by email
     //==========****
@@ -184,6 +192,7 @@ public class CustomerService {
         Customer customer = customerRepository.findCustomerByEmail(email).orElseThrow(() -> new ResourceNotFoundException("Customer with email " + email + " was not found."));
         return CustomerResponseDTO.fromEntity(customer);
     }
+
     //****========
     //get all address for customer
     //==========****
@@ -193,6 +202,7 @@ public class CustomerService {
         return CustomerAddressResponseDTO.fromEntity(addresses);
 
     }
+
     //****========
     //deactivate the address
     //==========****
@@ -207,6 +217,7 @@ public class CustomerService {
             return "NOT FOUND";
         }
     }
+
     //****========
     //set default address
     //==========****
@@ -224,6 +235,7 @@ public class CustomerService {
         CustomerAddress updatedAddress = customerAddressRepository.save(address);
         return CustomerAddressResponseDTO.fromEntity(updatedAddress);
     }
+
     //=========**
     //Search and Pagination
     //========**
@@ -232,17 +244,19 @@ public class CustomerService {
         Page<Customer> customers = customerRepository.searchCustomersByName(name, pageable);
         return customers.map(CustomerResponseDTO::fromEntity);
     }
+
     //****========
     //get customer orders by status,date from to ,page and size
     //==========****
     public Page<OrdersResponseDTO> getCustomerOrders(Integer customerId, String status, String from, String to, int page, int size) {
         customerRepository.findCustomerById(customerId).orElseThrow(() -> ResourceNotFoundException.notFound("Customer", customerId));
         Pageable pageable = PageRequest.of(page, size);
-        LocalDateTime fromDate = LocalDate.parse(from) .atStartOfDay();
-        LocalDateTime toDate = LocalDate.parse(to) .atTime(LocalTime.MAX);
-        Page<Orders> orders = ordersRepository.findCustomerOrdersWithFilters( customerId, status, fromDate, toDate, pageable );
-        return orders.map( OrdersResponseDTO::fromEntity );
+        LocalDateTime fromDate = LocalDate.parse(from).atStartOfDay();
+        LocalDateTime toDate = LocalDate.parse(to).atTime(LocalTime.MAX);
+        Page<Orders> orders = ordersRepository.findCustomerOrdersWithFilters(customerId, status, fromDate, toDate, pageable);
+        return orders.map(OrdersResponseDTO::fromEntity);
     }
+
     //****========
     //patch customer if it needed to update some fields in profile
     //==========****
@@ -272,7 +286,6 @@ public class CustomerService {
 
         return response;
     }
-
 
 
 }

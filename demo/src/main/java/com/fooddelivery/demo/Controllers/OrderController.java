@@ -31,7 +31,7 @@ public class OrderController {
     }
 
     @PostMapping("/{id}/items")
-    public ResponseEntity<OrdersResponseDTO> createOrderItem(@PathVariable Integer id, @RequestBody OrderItemRequestDTO dto) {
+    public ResponseEntity<OrdersResponseDTO> createOrderItem(@PathVariable Integer id, @Valid @RequestBody OrderItemRequestDTO dto) {
         return ResponseEntity.ok(orderService.addMenuItemToOrder(id, dto.getMenuItemId(), dto.getQuantity()));
     }
 

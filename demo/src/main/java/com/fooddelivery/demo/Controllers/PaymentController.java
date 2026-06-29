@@ -27,28 +27,29 @@ public class PaymentController {
     public ResponseEntity<PaymentResponseDTO> processPayment(@PathVariable Integer orderId, @RequestParam String method) {
         return new ResponseEntity<>(paymentService.processPayment(orderId, method), HttpStatus.CREATED);
     }
+
     @PutMapping("/{paymentId}/complete")
-    public ResponseEntity<PaymentResponseDTO> completePayment( @PathVariable Integer paymentId ) {
-        return ResponseEntity.ok( paymentService.completePayment( paymentId ) );
+    public ResponseEntity<PaymentResponseDTO> completePayment(@PathVariable Integer paymentId) {
+        return ResponseEntity.ok(paymentService.completePayment(paymentId));
     }
+
     @PutMapping("/{paymentId}/refund")
-    public ResponseEntity<PaymentResponseDTO> refundPayment( @PathVariable Integer paymentId ) {
-        return ResponseEntity.ok( paymentService.refundPayment( paymentId ) );
+    public ResponseEntity<PaymentResponseDTO> refundPayment(@PathVariable Integer paymentId) {
+        return ResponseEntity.ok(paymentService.refundPayment(paymentId));
     }
+
     @GetMapping("/order/{orderId}")
-    public ResponseEntity<PaymentResponseDTO> getPaymentByOrderId( @PathVariable Integer orderId ) {
-        return ResponseEntity.ok( paymentService.getPaymentByOrderId( orderId ) );
+    public ResponseEntity<PaymentResponseDTO> getPaymentByOrderId(@PathVariable Integer orderId) {
+        return ResponseEntity.ok(paymentService.getPaymentByOrderId(orderId));
     }
-    @GetMapping("/") public
-    ResponseEntity<Page<PaymentResponseDTO>> getPayments(@RequestParam String method, @RequestParam String status, @RequestParam LocalDateTime from, @RequestParam LocalDateTime to, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size ) {
-        return ResponseEntity.ok( paymentService.getPayments( method, status, from, to, page, size ) );
+
+    @GetMapping("/")
+    public ResponseEntity<Page<PaymentResponseDTO>> getPayments(@RequestParam String method, @RequestParam String status, @RequestParam LocalDateTime from, @RequestParam LocalDateTime to, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(paymentService.getPayments(method, status, from, to, page, size));
     }
+
     @GetMapping("/analytics/methods")
     public ResponseEntity<List<Object[]>> getPaymentAnalyticsByMethod() {
-        return ResponseEntity.ok( paymentService.getPaymentAnalyticsByMethod() );
+        return ResponseEntity.ok(paymentService.getPaymentAnalyticsByMethod());
     }
-
-
-
-
 }

@@ -17,7 +17,7 @@ public class GlobalExceptionHandling {
 
     //404 — resource not found, or row exists but isActive = false
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleResourceNotFound(ResourceNotFoundException ex, WebRequest request){
+    public ResponseEntity<ErrorResponse> handleResourceNotFound(ResourceNotFoundException ex, WebRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.NOT_FOUND,
                 HttpStatus.NOT_FOUND.value(),
@@ -54,7 +54,7 @@ public class GlobalExceptionHandling {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
 
-  // 400 — Bean Validation failure (Carries the detailed field errors map)
+    // 400 — Bean Validation failure (Carries the detailed field errors map)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationErrors(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();

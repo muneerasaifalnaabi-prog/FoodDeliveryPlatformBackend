@@ -5,10 +5,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
-public interface RestaurantOwnerRepository extends JpaRepository<RestaurantOwner,Integer> {
+public interface RestaurantOwnerRepository extends JpaRepository<RestaurantOwner, Integer> {
+
     @Query("SELECT ro FROM RestaurantOwner ro WHERE ro.isActive = TRUE AND ro.id = :ownerId")
     Optional<RestaurantOwner> findActiveById(@Param("ownerId") Integer ownerId);
+
+    @Query("SELECT ro FROM RestaurantOwner ro WHERE ro.email = :email AND ro.isActive = true")
+    Optional<RestaurantOwner> findRestaurantOwnerByEmail(@Param("email") String email);
 }
 

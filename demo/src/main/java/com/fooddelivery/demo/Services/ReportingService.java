@@ -38,10 +38,12 @@ public class ReportingService {
     @Autowired
     private DeliveryDriverRepository deliveryDriverRepository;
 
+    //****========
+    //get Restaurant revenue by date
+    //==========****
     public Double getRestaurantRevenueByDate(Integer restaurantId, LocalDate date) {
 
-        restaurantRepository.findRestaurantById(restaurantId)
-                .orElseThrow(() -> ResourceNotFoundException.notFound("Restaurant", restaurantId));
+        restaurantRepository.findRestaurantById(restaurantId).orElseThrow(() -> ResourceNotFoundException.notFound("Restaurant", restaurantId));
 
         LocalDateTime startDate = date.atStartOfDay();
         LocalDateTime endDate = date.atTime(LocalTime.MAX);
@@ -49,19 +51,22 @@ public class ReportingService {
         return revenue != null ? revenue : 0.0;
     }
 
+    //****========
+    //count Restaurant  order
+    //==========****
     public Integer countRestaurantOrders(Integer restaurantId) {
 
-        restaurantRepository.findRestaurantById(restaurantId)
-                .orElseThrow(() -> ResourceNotFoundException.notFound("Restaurant", restaurantId));
+        restaurantRepository.findRestaurantById(restaurantId).orElseThrow(() -> ResourceNotFoundException.notFound("Restaurant", restaurantId));
         Integer totalOrders = ordersRepository.countRestaurantOrders(restaurantId);
-
         return totalOrders != null ? totalOrders : 0;
     }
 
+    //****========
+    //Find to Loyalty Customer
+    //==========****
     public List<CustomerResponseDTO> findTopLoyaltyCustomers() {
 
         Pageable pageable = PageRequest.of(0, 10);
-
         List<Customer> customers = customerRepository.findTopLoyaltyCustomers(pageable);
         List<CustomerResponseDTO> response = new ArrayList<>();
         for (Customer customer : customers) {
@@ -70,25 +75,27 @@ public class ReportingService {
         return response;
     }
 
+    //****========
+    //Find Top Driver Leadboard
+    //==========****
     public List<DeliveryDriverResponseDTO> getTop10DriverLeaderboard() {
 
         Pageable pageable = PageRequest.of(0, 10);
-
         List<DeliveryDriver> drivers = deliveryDriverRepository.getTop10DriverLeaderboard(pageable);
-
         List<DeliveryDriverResponseDTO> response = new ArrayList<>();
-
         for (DeliveryDriver driver : drivers) {
             response.add(DeliveryDriverResponseDTO.fromEntity(driver));
         }
         return response;
     }
 
+    //****========
+    //get PaltformDaily Summary
+    //==========****
     public Map<String, Object> getPlatformDailySummary(LocalDate date) {
 
         Integer totalOrders = ordersRepository.countDailyOrders(date);
         BigDecimal deliveryFees = ordersRepository.getPlatformDailySummary(date);
-
         Map<String, Object> result = new HashMap<>();
         result.put("date", date);
         result.put("totalOrders", totalOrders != null ? totalOrders : 0);
@@ -96,10 +103,12 @@ public class ReportingService {
         return result;
     }
 
+    //****========
+    //Get Revenue for Restaurant Between date
+    //==========****
     public Map<String, Object> getRestaurantRevenue(Integer restaurantId, LocalDate from, LocalDate to) {
 
-        restaurantRepository.findRestaurantById(restaurantId)
-                .orElseThrow(() -> ResourceNotFoundException.notFound("Restaurant", restaurantId));
+        restaurantRepository.findRestaurantById(restaurantId).orElseThrow(() -> ResourceNotFoundException.notFound("Restaurant", restaurantId));
 
         LocalDateTime fromDate = from.atStartOfDay();
         LocalDateTime toDate = to.atTime(LocalTime.MAX);
@@ -116,10 +125,11 @@ public class ReportingService {
         return result;
     }
 
+    //****========
+    //Get Driver Earnings
+    //==========****
     public Map<String, Object> getDriverEarnings(Integer driverId, LocalDate from, LocalDate to) {
-
-        deliveryDriverRepository.findDriverById(driverId)
-                .orElseThrow(() -> ResourceNotFoundException.notFound("Driver", driverId));
+        deliveryDriverRepository.findDriverById(driverId).orElseThrow(() -> ResourceNotFoundException.notFound("Driver", driverId));
 
         LocalDateTime fromDate = from.atStartOfDay();
         LocalDateTime toDate = to.atTime(LocalTime.MAX);
@@ -134,6 +144,9 @@ public class ReportingService {
         return result;
     }
 
+    //****========
+    //Get Cancellation Rate
+    //==========****
     public Map<String, Object> getCancellationRate(LocalDate from, LocalDate to) {
 
         LocalDateTime fromDate = from.atStartOfDay();
@@ -157,7 +170,9 @@ public class ReportingService {
 
         return result;
     }
-
+    //****========
+    //Get BusiestHours
+    //==========****
     public List<Object[]> getBusiestHours() {
         return ordersRepository.getBusiestHours();
     }

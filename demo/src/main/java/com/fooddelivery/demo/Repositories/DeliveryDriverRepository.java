@@ -26,11 +26,6 @@ public interface DeliveryDriverRepository extends JpaRepository<DeliveryDriver, 
     @Query(" SELECT d FROM DeliveryDriver d WHERE d.isOnline = true AND d.isActive = true ")
     List<DeliveryDriver> findOnlineDrivers();
 
-    /*@Query(" SELECT d FROM delivery_driver d JOIN delivery dl ON d.id = dl.driver_id WHERE d.is_active = true AND dl.is_active = true AND dl.status = 'DELIVERED' GROUP BY d.id ORDER BY COUNT(dl.id) DESC LIMIT 10 ")
-    List<DeliveryDriver> getTop10DriverLeaderboard();
-
-     */
-
     @Query("SELECT d FROM Delivery d WHERE d.orders.id = :orderId AND d.isActive = true")
     Optional<Delivery> findDeliveryByOrderId(@Param("orderId") Integer orderId);
 

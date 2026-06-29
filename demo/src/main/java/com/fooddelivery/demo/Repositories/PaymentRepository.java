@@ -23,7 +23,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Integer> {
     @Query(" SELECT p FROM Payment p WHERE p.isActive = true AND p.paymentMethod = :method AND p.status = :status AND p.processedAt BETWEEN :from AND :to ")
     Page<Payment> filterPayments(@Param("method") String method, @Param("status") String status, @Param("from") LocalDateTime from, @Param("to") LocalDateTime to, Pageable pageable);
 
-    @Query("SELECT p.paymentMethod, SUM(p.amount) FROM Payment p WHERE p.isActive = true GROUP BY p.paymentMethod ")
+    @Query("SELECT p.paymentMethod, COALESCE(SUM(p.amount), 0) FROM Payment p GROUP BY p.paymentMethod ")
     List<Object[]> getPaymentAnalyticsByMethod();
 
 

@@ -62,8 +62,9 @@ public class DeliveryService {
         Orders orders = ordersRepository.findById(orderId).orElseThrow(() -> ResourceNotFoundException.notFound("Order", orderId));
         List<DeliveryDriver> drivers = deliveryDriverRepository.findFirstAvailableOnlineDriver();
         if (drivers.isEmpty()) {
-            throw ResourceNotFoundException.notFound( "Online Driver", orderId );
-        } DeliveryDriver driver = drivers.get(0);
+            throw ResourceNotFoundException.notFound("Online Driver", orderId);
+        }
+        DeliveryDriver driver = drivers.get(0);
 
         if (!orders.getStatus().equals("CONFIRMED")) {
             throw InvalidOrderStateException.invalidState("cannot assign driver to order");
@@ -119,7 +120,7 @@ public class DeliveryService {
     public DeliveryResponseDTO markDeliveryDelivered(Integer deliveryId) {
         Delivery delivery = deliveryRepository.findById(deliveryId).orElseThrow(() -> ResourceNotFoundException.notFound("Delivery", deliveryId));
         if (!delivery.getStatus().equals("PICKED_UP")) {
-            throw InvalidOrderStateException.invalidState( "Delivery must be PICKED_UP before delivery." );
+            throw InvalidOrderStateException.invalidState("Delivery must be PICKED_UP before delivery.");
         }
         delivery.setStatus("DELIVERED");
         delivery.setDeliveredAt(LocalDateTime.now());
@@ -236,25 +237,28 @@ public class DeliveryService {
     //****========
     //Get driver performance
     //==========****
-    public Map<String, Object> getDriverPerformance( Integer driverId ) {
-        deliveryDriverRepository.findDriverById(driverId) .orElseThrow(() -> ResourceNotFoundException.notFound( "Driver", driverId ) );
-     Double completedDeliveries = deliveryRepository.countCompletedDeliveries(driverId);
-    Double averageDeliveryTime = deliveryRepository.getAverageDeliveryTime(driverId);
-    Double averageRating = reviewRepository.getDriverAverageRating(driverId);
-    // prevent null values
-    if (completedDeliveries == null) {
-        completedDeliveries = 0.0;
-    } if (averageDeliveryTime == null) {
-        averageDeliveryTime = 0.0;
-    } if (averageRating == null) {
-        averageRating = 0.0;
-    } Map<String, Object> performance = new HashMap<>();
-    performance.put( "completedDeliveries",
-    completedDeliveries );
-    performance.put( "averageDeliveryTimeMinutes", averageDeliveryTime );
-    performance.put( "averageRating", averageRating );
-    return performance;
-}
+    public Map<String, Object> getDriverPerformance(Integer driverId) {
+        deliveryDriverRepository.findDriverById(driverId).orElseThrow(() -> ResourceNotFoundException.notFound("Driver", driverId));
+        Double completedDeliveries = deliveryRepository.countCompletedDeliveries(driverId);
+        Double averageDeliveryTime = deliveryRepository.getAverageDeliveryTime(driverId);
+        Double averageRating = reviewRepository.getDriverAverageRating(driverId);
+        // prevent null values
+        if (completedDeliveries == null) {
+            completedDeliveries = 0.0;
+        }
+        if (averageDeliveryTime == null) {
+            averageDeliveryTime = 0.0;
+        }
+        if (averageRating == null) {
+            averageRating = 0.0;
+        }
+        Map<String, Object> performance = new HashMap<>();
+        performance.put("completedDeliveries",
+                completedDeliveries);
+        performance.put("averageDeliveryTimeMinutes", averageDeliveryTime);
+        performance.put("averageRating", averageRating);
+        return performance;
+    }
 
     //****========
     //get Driver Earnings

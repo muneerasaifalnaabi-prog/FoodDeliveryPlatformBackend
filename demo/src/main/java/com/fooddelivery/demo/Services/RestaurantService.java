@@ -6,14 +6,8 @@ import com.fooddelivery.demo.Exceptions.InvalidOrderStateException;
 import com.fooddelivery.demo.Exceptions.ResourceNotFoundException;
 import com.fooddelivery.demo.Repositories.*;
 import com.fooddelivery.demo.Utils.HelperUtils;
-import com.fooddelivery.demo.dto.RequestDTO.ComboMealRequestDTO;
-import com.fooddelivery.demo.dto.RequestDTO.CustomerRequestDTO;
-import com.fooddelivery.demo.dto.RequestDTO.MenuItemRequestDTO;
-import com.fooddelivery.demo.dto.RequestDTO.RestaurantRequestDTO;
-import com.fooddelivery.demo.dto.ResponseDTO.ComboMealResponseDTO;
-import com.fooddelivery.demo.dto.ResponseDTO.CustomerResponseDTO;
-import com.fooddelivery.demo.dto.ResponseDTO.MenuItemResponseDTO;
-import com.fooddelivery.demo.dto.ResponseDTO.RestaurantResponseDTO;
+import com.fooddelivery.demo.dto.RequestDTO.*;
+import com.fooddelivery.demo.dto.ResponseDTO.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -283,29 +277,23 @@ public class RestaurantService {
         }
         return response;
     }
-    public RestaurantResponseDTO createRestaurantOwner(RestaurantRequestDTO dto) {
+    public RestaurantOwnerResponseDTO createRestaurantOwner(RestaurantOwnerRequestDTO dto) {
         if (dto == null) {
             throw InvalidOrderStateException.invalidState("Restaurant Owner data is required");
         }
-        Optional<RestaurantOwner> existOwner = customerRepository.findCustomerByEmail(dto.getEmail());
+        RestaurantOwner owner = dto.toEntity();
+        owner.setFirstName(dto.getFirstName());
+        owner.setLastName(dto.getLastName());
+        owner.setEmail(dto.getEmail());
+        owner.setPhone(dto.getPhone());
+        owner.setPasswordHash(dto.getPassword());
+        owner.setBusinessLicenseCode(HelperUtils.generateCode("LTC"));
 
-        if (existCustomer.isPresent()) {
-            throw DuplicateResourceException.alreadyExists("Customer email", dto.getEmail());
-        }
 
-        Customer customer = dto.toEntity();
-
-        customer.setCustomerCode(HelperUtils.generateCode("CUST"));
-        customer.setLoyaltyPoints(0);
-        customer.setOrders(new ArrayList<>());
-        customer.setReviews(new ArrayList<>());
-        customer.setCreatedDate(LocalDateTime.now());
-        customer.setUpdatedDate(LocalDateTime.now());
-        customer.setIsActive(true);
-
-        return CustomerResponseDTO.fromEntity(customerRepository.save(customer));
+        return RestaurantOwnerResponseDTO.fromEntity(
+                restaurantOwnerRepository.save(owner)
+        );
     }
-
 
 }
 

@@ -16,5 +16,5 @@ public interface CustomerAddressRepository extends JpaRepository<CustomerAddress
     List<CustomerAddress> findByCustomerId(@Param("customerId") Integer customerId);
 
     @Query(" SELECT ca FROM CustomerAddress ca WHERE ca.id = :addressId AND ca.isActive = true ")
-    Optional<CustomerAddress> findAddressById(@Param("addressId") Integer addressId );
+    Optional<CustomerAddress> findAddressById(@Param("addressId") Integer addressId);
 }

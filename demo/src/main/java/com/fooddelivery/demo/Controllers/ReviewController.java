@@ -46,8 +46,8 @@ public class ReviewController {
         return ResponseEntity.ok( reviewService.getDriverAverageRating( driverId ) );
     }
     @GetMapping("/restaurant/{restaurantId}")
-    public ResponseEntity<Page<ReviewResponseDTO>> getRestaurantReviews(@PathVariable Integer restaurantId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size ) {
-        return ResponseEntity.ok( reviewService.getRestaurantReviews( restaurantId, page, size ) );
+    public ResponseEntity<List<ReviewResponseDTO>> getRestaurantReviews(@PathVariable Integer restaurantId) {
+        return ResponseEntity.ok( reviewService.getRestaurantReviews( restaurantId) );
     }
 
 

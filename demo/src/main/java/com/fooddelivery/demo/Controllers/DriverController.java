@@ -36,7 +36,8 @@ public class DriverController {
         return ResponseEntity.ok( deliveryService.toggleDriverOnlineStatus(id, isOnline ));
     }
     @PutMapping("/{id}/location")
-    public ResponseEntity<DeliveryDriverResponseDTO> updateDriverLocation( @PathVariable Integer id, @RequestParam double lat, @RequestParam double lng ) {return ResponseEntity.ok( deliveryService.updateDriverLocation(id,lat, lng));
+    public ResponseEntity<DeliveryDriverResponseDTO> updateDriverLocation( @PathVariable Integer id, @RequestParam double lat, @RequestParam double lng ) {
+        return ResponseEntity.ok( deliveryService.updateDriverLocation(id,lat, lng));
     }
     @GetMapping("/{id}/deliveries")
     public ResponseEntity<List<DeliveryResponseDTO>> getDriverDeliveries( @PathVariable Integer id ) {
